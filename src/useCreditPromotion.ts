@@ -19,6 +19,7 @@ export function useCreditPromotion() {
   const resetting = useRef(false);
   const [loading, setLoading] = useState(true);
   const initialDeadline = useRef<number | null>(null);
+  const started = useRef(false);
   useEffect(() => {
     let active = true;
     setLoading(true); setError(false);
@@ -27,6 +28,7 @@ export function useCreditPromotion() {
         const raw = resetting.current ? null : await AsyncStorage.getItem(KEY);
         let deadline: number;
         if (raw === null) {
+          if (!started.current) { if (active) setExpiresAt(null); return; }
           deadline = initialDeadline.current ?? (Date.now() + DEMO_DURATION);
           initialDeadline.current = deadline;
           await AsyncStorage.setItem(KEY, JSON.stringify({ expiresAt: deadline }));
@@ -58,5 +60,13 @@ export function useCreditPromotion() {
     const subscription = AppState.addEventListener('change', state => { if (state === 'active') update(); });
     return () => { if (timer) clearTimeout(timer); subscription.remove(); };
   }, [expiresAt]);
-  return { active: expiresAt !== null && expiresAt > now, label: expiresAt === null ? '' : promotionTime(expiresAt, now), error, invalid, loading, retry: () => { if (invalid && !resetting.current) { resetting.current = true; initialDeadline.current = null; } setAttempt(value => value + 1); } };
+  return {
+    active: expiresAt !== null && expiresAt > now,
+    label: expiresAt === null ? '' : promotionTime(expiresAt, now),
+    error,
+    invalid,
+    loading,
+    start: () => { started.current = true; initialDeadline.current = null; setAttempt(value => value + 1); },
+    retry: () => { if (invalid && !resetting.current) { resetting.current = true; initialDeadline.current = null; } started.current = true; setAttempt(value => value + 1); },
+  };
 }
