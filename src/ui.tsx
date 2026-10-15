@@ -53,10 +53,10 @@ export function Pill({ title, icon, onPress, active, onRemove }: {
     </View>
   </Pressable>;
 }
-const ACCENT_STOPS = ['#FD741A', '#FD492B', '#FD1C6E', '#FD1C6E', '#FD492B', '#FD5028'] as const;
-const ACCENT_LOCATIONS = [0, 0.16, 0.32, 0.61, 0.72, 1] as const;
+const ACCENT_STOPS = ['#FD8D1F', '#FD492B', '#FD2068', '#FD2068', '#FD492B', '#FD492B'] as const;
+const ACCENT_LOCATIONS = [0, 0.15, 0.28, 0.61, 0.71, 1] as const;
 export function Accent({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
-  return <LinearGradient colors={ACCENT_STOPS as unknown as string[]} locations={ACCENT_LOCATIONS as unknown as number[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ overflow: 'hidden' }, style]}>{children}</LinearGradient>;
+  return <LinearGradient colors={ACCENT_STOPS as unknown as string[]} locations={ACCENT_LOCATIONS as unknown as number[]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={[{ overflow: 'hidden' }, style]}>{children}</LinearGradient>;
 }
 export function Sheet({ children, onClose, compact = false, onShow, backgroundColor, backdrop, keyboardAvoiding = false, handleColor, handleHeight, handlePaddingTop }: { children: React.ReactNode; onClose: () => void; compact?: boolean; onShow?: () => void; backgroundColor?: string; backdrop?: React.ReactNode; keyboardAvoiding?: boolean; handleColor?: string; handleHeight?: number; handlePaddingTop?: number }) {
   const sheetRoot = React.useRef<View>(null);
