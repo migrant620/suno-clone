@@ -348,7 +348,7 @@ function CreationApp() {
         </ScrollView>}
 
         <View style={[A.createRow, state.mode === 'Advanced' && { marginTop: 0 }]}>
-          {hasDraft && <IconButton name="delete" label="Clear all" disabled={mediaBusy} onPress={() => void clearDraft()} style={A.clear} />}
+          <IconButton name="delete" label="Clear all" disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
           <Pressable accessibilityRole="button" accessibilityLabel="Create" disabled={!canCreate} accessibilityState={{ disabled: !canCreate }} onPress={() => setOverlay('generation')} style={{ flex: 1 }}>
             {canCreate ? <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent> : <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent>}
           </Pressable>
