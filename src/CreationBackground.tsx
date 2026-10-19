@@ -2,6 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Animated, Easing, Image, Platform, StyleSheet, View } from 'react-native';
 
+const B = StyleSheet.create({ fade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 115 } });
+
 export function CreationBackground({ reduceMotion: localReduceMotion = false, dark = false }: { reduceMotion?: boolean; dark?: boolean }) {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -32,5 +34,6 @@ export function CreationBackground({ reduceMotion: localReduceMotion = false, da
         <LinearGradient colors={['#10101200', '#10101200', '#10101266', '#101012']} locations={[0, 0.45, 0.86, 1]} style={StyleSheet.absoluteFill} />
       </> : <Image source={require('../assets/creation-aura.png')} resizeMode="cover" style={{ width: '100%', height: '100%' }} />}
     </Animated.View>
+    {!dark && <LinearGradient colors={['#F7F4EF00', '#F7F4EF', '#F7F4EF']} locations={[0, 0.5217, 1]} style={B.fade} />}
   </View>;
 }

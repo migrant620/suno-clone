@@ -36,7 +36,7 @@ export function HooksInspiration({ onSelect, scrollOffsets }: { onSelect: (kind:
   </View>;
 }
 const S = StyleSheet.create({
-  section: { flexShrink: 0 }, heading: { fontSize: 18, lineHeight: 24, color: '#F7F4EF', marginHorizontal: 16, marginTop: 11, marginBottom: 7, fontFamily: 'RobotoMedium' },
+  section: { flexShrink: 0 }, heading: { fontSize: 18, lineHeight: 24, letterSpacing: 0.13, color: '#F7F4EF', marginHorizontal: 16, marginTop: 11, marginBottom: 7, fontFamily: 'RobotoMedium' } ,
   cards: { paddingHorizontal: 16, gap: 12 }, card: { width: 150, height: 150, borderRadius: 12, overflow: 'hidden', backgroundColor: '#19191B' },
   image: { position: 'absolute', width: '100%', height: '100%' }, borderMotion: { position: 'absolute', width: 214, height: 214, left: -32, top: -32 }, photoInner: { position: 'absolute', top: 2, left: 2, right: 2, bottom: 2, borderRadius: 10, overflow: 'hidden' },
   photoText: { position: 'absolute', top: 12, left: 14, right: 12 }, newFeature: { color: '#FF399C', fontSize: 12, lineHeight: 16, letterSpacing: 0.2, fontFamily: 'RobotoMedium' }, title: { color: '#FFFFFF', fontSize: 14, lineHeight: 20, fontFamily: 'RobotoMedium' }, regularText: { margin: 10 },

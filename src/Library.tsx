@@ -71,7 +71,7 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
         <View style={view === 'grid' ? { padding: 4, paddingTop: 8 } : { flex: 1 }}><Label style={{ fontSize: 14 }} numberOfLines={2}>{p.name}</Label>{p.id !== 'new' && p.id !== 'liked' && <Label style={L.metadata}>Demo listener</Label>}</View>
       </Pressable>)}</ScrollView> : <View style={L.center}><Label style={{ color: C.disabled }}>No playlists saved yet</Label></View>}
     </> : <>
-      <View style={L.header}><Label style={[L.title, { letterSpacing: 0.4 }]}>Library</Label><View style={{ flex: 1 }} /><IconButton name="magnify" label="Search" onPress={() => { setQuery(''); onRoute('search'); }} circle={C.field} style={{ marginTop: -8 }} /></View>
+      <View style={L.header}><Label style={[L.title, { letterSpacing: 1.04, marginTop: -1.2 }]}>Library</Label><View style={{ flex: 1 }} /><IconButton name="magnify" label="Search" onPress={() => { setQuery(''); onRoute('search'); }} circle={C.field} style={{ marginTop: -8 }} /></View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={L.categories}>
         <Pressable accessibilityRole="button" accessibilityLabel="Liked" onPress={() => openLiked('home')} style={L.category}><Image source={likedArt} style={L.categoryImage} /><View style={L.categoryIcon}><Icon name="thumb-up" size={56} color="#B8DEEF" /></View><Label style={L.categoryTitle}>Liked</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Playlists" onPress={() => onRoute('playlists')} style={L.category}><Image source={require('../assets/playlists-cover.png')} style={L.categoryImage} /><Label style={L.categoryTitle}>Playlists</Label></Pressable>
@@ -97,14 +97,14 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
 const styles = (C: ThemeColors) => StyleSheet.create({
   page: { flex: 1, backgroundColor: C.surface },
   header: { height: 76, flexDirection: 'row', alignItems: 'flex-start', padding: 16 },
-  title: { fontFamily: 'RobotoBold', fontSize: 28, lineHeight: 34 },
+  title: { fontFamily: 'RobotoBold', fontSize: 28, lineHeight: 34, color: C.surface === '#101012' ? C.ink : '#1C1C1F' },
   headerAction: { marginTop: -4, width: 40, height: 40, borderRadius: 99, backgroundColor: C.field },
   categories: { flexDirection: 'row', gap: 12, paddingHorizontal: 16 },
   category: { width: 164, height: 124, borderRadius: 16, overflow: 'hidden' },
   categoryImage: { position: 'absolute', width: '100%', height: '100%' },
   categoryIcon: { position: 'absolute', top: 29, left: 53 },
-  categoryTitle: { position: 'absolute', bottom: 12, left: 12, color: C.white, fontSize: 18, lineHeight: 24 },
-  emptyMain: { flex: 1, paddingBottom: 42, justifyContent: 'center', alignItems: 'center' },
+  categoryTitle: { position: 'absolute', bottom: 10.55, left: 12, color: C.white, fontSize: 18, lineHeight: 24 },
+  emptyMain: { flex: 1, paddingBottom: 45.2, justifyContent: 'center', alignItems: 'center' },
   tip: { height: 136, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 0, gap: 2 },
   tipText: { fontSize: 14, color: C.muted, lineHeight: 21 },
   largeCover: { alignSelf: 'center', marginTop: 4 },
