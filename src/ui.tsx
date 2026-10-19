@@ -44,7 +44,7 @@ export function Pill({ title, icon, onPress, active, onRemove }: {
 }) {
   const C = useSurfaceColors();
   return <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={S.pillTarget}>
-    <View style={[S.pill, active ? { backgroundColor: C.surface === '#101012' ? '#FFFFFF0D' : '#1010120A' } : { ...S.pillEmpty, borderColor: C.surface === '#101012' ? '#F7F4EF26' : C.border }]}>
+    <View style={[S.pill, active ? { backgroundColor: C.surface === '#101012' ? '#FFFFFF0D' : '#1010120A' } : { ...S.pillEmpty, borderColor: C.surface === '#101012' ? '#F7F4EF26' : '#1010121A' }]}>
       <View style={S.pillContent}>
         {icon && <Icon name={icon} size={20} color={active ? C.blue : C.disabled} />}
         <Label style={S.pillText}>{title}</Label>
@@ -86,7 +86,7 @@ export const S = StyleSheet.create({
   pillEmpty: { borderWidth: 1, borderStyle: 'dashed', borderColor: C.border },
   pillActive: { backgroundColor: '#1010120A' },
   pillContent: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 11, paddingRight: 19, height: 40 },
-  pillText: { fontFamily: 'RobotoMedium', fontSize: 13.5, lineHeight: 17 },
+  pillText: { fontFamily: 'RobotoMedium', fontSize: 13.1, lineHeight: 17, letterSpacing: 0.6, marginTop: 1.1 },
   modalOuter: { flex: 1, backgroundColor: '#00000040', alignItems: 'center', justifyContent: 'flex-end', paddingTop: Platform.OS === 'web' ? 0 : 49 },
   sheet: { backgroundColor: C.surface, borderTopLeftRadius: tokens.rounded.sheet, borderTopRightRadius: tokens.rounded.sheet, overflow: 'hidden', paddingBottom: Platform.OS === 'ios' ? 24 : 0 },
   handleArea: { height: 52, alignItems: 'center' },

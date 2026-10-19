@@ -37,7 +37,7 @@ export function MainNavigation({ tab, dark, avatarUri, onSelect, playback }: {
       </View>;
       const color = selected ? (dark ? '#F7F4EF' : '#101012') : (dark ? '#6A6A72' : '#A3A3A3');
       const backgroundColor = selected ? selectedFill : surface;
-      return <View key={id} style={[styles.slot, !!compact && { width: 68 }]}><Pressable accessibilityRole="button" accessibilityLabel={label}
+      return <View key={id} style={[styles.slot, (id === 'library' || id === 'profile') && styles.wideSlot, !!compact && { width: 68 }]}><Pressable accessibilityRole="button" accessibilityLabel={label}
         accessibilityState={{ selected }} aria-pressed={selected}
         onPress={() => onSelect(id)} style={({ pressed }) => [styles.target, id === 'create' && styles.createTarget, pressed && { opacity: 0.55 }]}>
         <View testID={`navigation-pill-${id}`} pointerEvents="none" style={[styles.pill, { backgroundColor }]}>
@@ -55,16 +55,17 @@ export function MainNavigation({ tab, dark, avatarUri, onSelect, playback }: {
 }
 
 const styles = StyleSheet.create({
-  compactSlot: { width: 96, marginHorizontal: -4, height: 48, flexDirection: 'row', alignItems: 'center' },
+  compactSlot: { width: 96, marginHorizontal: -4, marginTop: 4, height: 48, flexDirection: 'row', alignItems: 'center' },
   compactPill: { position: 'absolute', left: 4, right: 4, top: 4, bottom: 4, borderRadius: 99 },
   coverTarget: { width: 40, height: 48, alignItems: 'center', justifyContent: 'center' },
   transportTarget: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   compactCover: { width: 32, height: 32, borderRadius: 99, transform: [{ translateX: 4 }] },
-  bar: { height: 56, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  slot: { width: 72, flexShrink: 1, alignItems: 'center', justifyContent: 'center' },
+  bar: { height: 55, overflow: 'hidden', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  slot: { width: 72, height: 56, flexShrink: 1, alignItems: 'center', justifyContent: 'center' },
+  wideSlot: { width: 72.4 },
   target: { width: '100%', height: 56, alignItems: 'center', justifyContent: 'center' },
-  createTarget: { width: 54, height: 48 },
-  pill: { width: 54, height: 40, borderRadius: 99, alignItems: 'center', justifyContent: 'center' },
+  createTarget: { width: 54.2, height: 48 },
+  pill: { width: 54.2, height: 40, borderRadius: 99, alignItems: 'center', justifyContent: 'center' },
   glyph: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   play: { position: 'absolute', left: 11, top: 10.5 },
   notes: { position: 'absolute', left: 0, top: 7 },

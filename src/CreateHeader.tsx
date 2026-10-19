@@ -20,7 +20,7 @@ export function CreateHeader({ mode, model, freePlan, promotion, onMode, onModel
           <Defs><LinearGradient id={gradient} x1="0%" y1="0%" x2="100%" y2="100%"><Stop offset="0" stopColor="#FF2997" /><Stop offset="0.5" stopColor="#FF176C" /><Stop offset="0.8" stopColor="#FF7800" /><Stop offset="1" stopColor="#FFB000" /></LinearGradient></Defs>
           <Rect x={0.75} y={0.75} width={91.5} height={46.5} rx={23.25} fill="none" stroke={`url(#${gradient})`} strokeWidth={1.5} />
         </Svg> : <View pointerEvents="none" accessible={false} style={[StyleSheet.absoluteFill, H.modelBorder, { borderColor: colors.surface === '#101012' ? '#F7F4EF26' : '#1010121A' }]} />}
-        <Label numberOfLines={1} style={H.modelText}>{model}</Label><Icon name={modelOpen ? 'chevron-up' : 'chevron-down'} size={20} />
+        <View style={H.modelLabel}><Label numberOfLines={1} style={H.modelText}>{model}</Label></View><View style={H.modelChevron}><Icon name={modelOpen ? 'chevron-up' : 'chevron-down'} size={20} /></View>
       </Pressable>
     </View>
     {freePlan && promotion.error ? <Pressable accessibilityRole="button" accessibilityLabel={promotion.invalid ? 'Reset demo offer timer' : 'Retry offer timer'} accessibilityState={{ disabled: promotion.loading }} disabled={promotion.loading} onPress={promotion.retry} style={H.promotion}><Label style={{ color: colors.muted, fontSize: 12 }}>{promotion.invalid ? 'Offer timer unavailable. Reset demo offer.' : 'Offer timer unavailable. Tap to retry.'}</Label></Pressable>
@@ -32,12 +32,14 @@ export function CreateHeader({ mode, model, freePlan, promotion, onMode, onModel
 }
 const H = StyleSheet.create({
   header: { marginHorizontal: 16, zIndex: 1 },
-  row: { height: 64, alignItems: 'center', justifyContent: 'center' },
+  row: { height: 64, marginLeft: -5.8, marginRight: -4, alignItems: 'center', justifyContent: 'center' },
   mode: { flexDirection: 'row', alignItems: 'center', gap: 0, height: 48 },
-  modeText: { fontFamily: 'RobotoMedium', fontSize: 18.5, lineHeight: 22, letterSpacing: -0.3 },
-  model: { position: 'absolute', top: 8, right: 0, width: 93, height: 48, paddingLeft: 16, paddingRight: 12, flexDirection: 'row', alignItems: 'center', gap: 0 },
+  modeText: { fontFamily: 'RobotoMedium', fontSize: 17.35, lineHeight: 22, letterSpacing: 0.4 },
+  model: { position: 'absolute', top: 8, right: 4, width: 93.2, height: 48, paddingLeft: 12.8, paddingRight: 0, flexDirection: 'row', alignItems: 'center', gap: 0 },
   modelBorder: { borderWidth: 1, borderRadius: 24 },
-  modelText: { fontFamily: 'RobotoRegular', fontSize: 13, lineHeight: 15, flexShrink: 0 },
+  modelText: { fontFamily: 'RobotoRegular', fontSize: 12.6, lineHeight: 15, letterSpacing: 0.08, flexShrink: 0 },
+  modelLabel: { width: 48, minWidth: 48, alignItems: 'center' },
+  modelChevron: { width: 16, height: 16, marginLeft: 0.4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
   promotion: { position: 'absolute', top: 56, left: 0, right: 0, minHeight: 36, flexDirection: 'row', gap: 4, alignItems: 'center', justifyContent: 'center' },
   offerTitle: { color: '#E88725', fontFamily: 'RobotoBold', lineHeight: 16, flexShrink: 1 },
   timer: { fontFamily: 'RobotoBold', fontSize: 12, lineHeight: 16 },

@@ -326,7 +326,7 @@ function CreationApp() {
         <CreateHeader modelOpen={overlay === 'model'} mode={state.mode} model={entitlements.data.model} freePlan={entitlements.ready && entitlements.data.plan === 'Free'} promotion={promotion} onMode={switchMode} onModel={() => { Keyboard.dismiss(); setOverlay('model'); }} onOffer={() => { Keyboard.dismiss(); promotion.start(); setOverlay('upgrade'); }} />
         {state.mode === 'Simple' ? <View style={A.simpleCard}>
           <View style={A.chips}>
-            <View ref={addAnchor} collapsable={false} style={A.addTarget}><View pointerEvents="none" style={A.addCircle} /><IconButton name="plus" label="Add to Song" onPress={() => { Keyboard.dismiss(); setOverlay('add'); }} /></View>
+            <View ref={addAnchor} collapsable={false} style={A.addTarget}><View pointerEvents="none" style={A.addCircle} /><IconButton name="plus" label="Add to Song" size={27.8} onPress={() => { Keyboard.dismiss(); setOverlay('add'); }} /></View>
             {mediaChip}
             {selectedVoice && <Pill title={selectedVoice.name} icon="account-voice" active onPress={() => setVoiceDetail(selectedVoice)} onRemove={() => dispatch({ type: 'voice', id: null })} />}
             {audio && <AudioChip track={audio} playback={audioPlayback} onRemove={() => setRemovingAudio(true)} />}
@@ -336,7 +336,7 @@ function CreationApp() {
             {!audio && <Pill title="Audio" icon="waveform" onPress={() => { audioPlayback.player.pause(); setOverlay('audio'); }} />}
           </View>
           <TextInput accessibilityLabel="Song description" multiline value={state.prompt} onChangeText={value => dispatch({ type: 'field', field: 'prompt', value })} style={[A.input, { flex: 1, marginTop: 8 }]} placeholder={media.draft?.kind === 'images' ? 'Take my vacation photo and turn into a song' : media.draft?.kind === 'videos' ? 'Turn my night out video into an anthem' : 'An acoustic love song'} placeholderTextColor={theme.dark ? '#766964' : C.disabled} selectionColor={C.primary} />
-          <IconButton name="help-circle" label="Learn what Create can do" onPress={() => setOverlay('help')} style={A.help}
+          <IconButton name="help-circle" label="Learn what Create can do" size={28.3} onPress={() => setOverlay('help')} style={A.help}
           color={theme.dark ? C.handle : '#5B5B62'} />
         </View> : <ScrollView style={{ flex: 1 }} contentContainerStyle={A.advancedContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {mediaChip && <View style={{ alignSelf: 'flex-start' }}>{mediaChip}</View>}
@@ -348,7 +348,7 @@ function CreationApp() {
         </ScrollView>}
 
         <View style={[A.createRow, state.mode === 'Advanced' && { marginTop: 0 }]}>
-          <IconButton name="delete" label="Clear all" disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
+          <IconButton name="delete" label="Clear all" size={19.5} disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
           <Pressable accessibilityRole="button" accessibilityLabel="Create" disabled={!canCreate} accessibilityState={{ disabled: !canCreate }} onPress={() => setOverlay('generation')} style={{ flex: 1 }}>
             {canCreate ? <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent> : <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent>}
           </Pressable>
@@ -424,9 +424,9 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   suggestion: { borderRadius: 999, backgroundColor: C.surface === '#101012' ? C.control : '#1010120F', height: 40, paddingHorizontal: 16, justifyContent: 'center' },
   summary: { color: C.muted, fontSize: 14 },
   titleInput: { gap: 2, borderRadius: 20, height: 48, paddingLeft: 21, paddingRight: 16, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A' },
-  createRow: { margin: 16, marginBottom: 6, flexDirection: 'row', gap: 8 },
+  createRow: { margin: 16, marginBottom: 8.1, flexDirection: 'row', gap: 8 },
   create: { height: 56, borderRadius: 999, flexDirection: 'row', gap: 6, justifyContent: 'center', alignItems: 'center' },
-  createText: { color: C.white, fontFamily: 'RobotoMedium', fontSize: 19, lineHeight: 22 },
+  createText: { color: C.white, fontFamily: 'RobotoMedium', fontSize: 18.5, lineHeight: 22, letterSpacing: 0.14 },
   clear: { width: 56, height: 56, borderRadius: 999, backgroundColor: C.surface === '#101012' ? C.control : '#10101230' },
   library: { flex: 1, backgroundColor: C.surface, padding: 24 },
   fileNote: { flexDirection: 'row', gap: 8, alignItems: 'center', marginHorizontal: 20, marginTop: 8 },
