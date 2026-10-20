@@ -4,17 +4,43 @@ import { Modal, Platform, Pressable, StyleSheet, Text, TextProps, View, ViewStyl
 import Undo2 from 'lucide-react-native/icons/undo-2';
 import Redo2 from 'lucide-react-native/icons/redo-2';
 import Library from 'lucide-react-native/icons/library';
-import createIconSet from '@expo/vector-icons/createIconSet';
 import ioniconsGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json';
 import materialGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialIcons.json';
 import communityGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialCommunityIcons.json';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tokens } from './tokens';
 import { useSurfaceColors } from './Theme';
+import { Fonts } from './fonts';
 
-export const Ionicons = createIconSet(ioniconsGlyphMap, 'ionicons', require('../assets/fonts/Ionicons.ttf'));
-const MaterialIcons = createIconSet(materialGlyphMap, 'material', require('../assets/fonts/MaterialIcons.ttf'));
-const MaterialCommunityIcons = createIconSet(communityGlyphMap, 'material-community', require('../assets/fonts/MaterialCommunityIcons.ttf'));
+function faceReady(family: string): boolean {
+  if (Platform.OS !== 'web' || typeof document === 'undefined' || !document.fonts) return true;
+  let loaded = false;
+  document.fonts.forEach(face => { if (face.family.replace(/["']/g, '') === family && face.status === 'loaded') loaded = true; });
+  return loaded;
+}
+function useFaceReady(family: string): boolean {
+  const [ready, setReady] = React.useState(() => faceReady(family));
+  React.useEffect(() => {
+    if (ready || typeof document === 'undefined' || !document.fonts) return undefined;
+    let alive = true;
+    const update = () => { if (alive && faceReady(family)) setReady(true); };
+    document.fonts.addEventListener('loadingdone', update);
+    update();
+    return () => { alive = false; document.fonts.removeEventListener('loadingdone', update); };
+  }, [family, ready]);
+  return ready;
+}
+type GlyphProps<N extends string> = Omit<TextProps, 'children'> & { name: N; size?: number; color?: string };
+function glyphSet<M extends Record<string, number>>(glyphMap: M, family: string) {
+  return function GlyphIcon({ name, size = 12, color = 'black', style, ...props }: GlyphProps<Extract<keyof M, string>>) {
+    const ready = useFaceReady(family);
+    const code = glyphMap[name];
+    return <Text selectable={false} allowFontScaling={false} {...props} style={[{ fontSize: size, color: ready ? color : 'transparent' }, style, { fontFamily: family, fontWeight: 'normal', fontStyle: 'normal' }]}>{typeof code === 'number' ? String.fromCodePoint(code) : '?'}</Text>;
+  };
+}
+export const Ionicons = glyphSet(ioniconsGlyphMap as Record<keyof typeof ioniconsGlyphMap, number>, 'ionicons');
+const MaterialIcons = glyphSet(materialGlyphMap as Record<keyof typeof materialGlyphMap, number>, 'material');
+const MaterialCommunityIcons = glyphSet(communityGlyphMap as Record<keyof typeof communityGlyphMap, number>, 'material-community');
 
 export const C = tokens.colors;
 export type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -30,14 +56,20 @@ export function Icon({ name, size = 24, color: suppliedColor }: { name: IconName
   if (name === 'thumb-up') return <MaterialIcons name="thumb-up-alt" size={size} color={color} accessible={false} aria-hidden importantForAccessibility="no-hide-descendants" />;
   return <MaterialCommunityIcons name={name} size={size} color={color} accessible={false} aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />;
 }
-export function IconButton({ name, label, onPress, disabled, color, style, size = 24, circle }: {
-  name: IconName; label: string; onPress: () => void; disabled?: boolean; color?: string; style?: ViewStyle; size?: number; circle?: string;
+export function IconButton({ name, label, onPress, disabled, color, style, size = 24, circle, glyphBox }: {
+  name: IconName; label: string; onPress: () => void; disabled?: boolean; color?: string; style?: ViewStyle; size?: number; circle?: string; glyphBox?: number;
 }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress}
+  const glyph = <Icon name={name} size={size} color={disabled ? C.disabled : color} />;
+  const labelId = useGlyphLabelId();
+  return <Pressable accessibilityRole="button" accessibilityLabel={glyphBox ? undefined : label} aria-labelledby={glyphBox ? labelId : undefined} accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress}
     style={({ pressed }) => [S.iconButton, style, pressed && { opacity: 0.55 }]}>
     {!!circle && <View pointerEvents="none" style={[S.disc, { backgroundColor: circle }]} />}
-    <Icon name={name} size={size} color={disabled ? C.disabled : color} />
+    {glyphBox ? <GlyphLabel id={labelId} label={label} size={glyphBox}>{glyph}</GlyphLabel> : glyph}
   </Pressable>;
+}
+export const useGlyphLabelId = () => `glyph-${React.useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+export function GlyphLabel({ id, label, size, children, offsetY = 0 }: { id: string; label: string; size: number; children: React.ReactNode; offsetY?: number }) {
+  return <View nativeID={id} accessibilityRole="button" accessibilityLabel={label} aria-hidden focusable={false} pointerEvents="none" style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center', overflow: 'visible', transform: offsetY ? [{ translateY: offsetY }] : undefined }}>{children}</View>;
 }
 export function Pill({ title, icon, onPress, active, onRemove }: {
   title: string; icon?: IconName; onPress: () => void; active?: boolean; onRemove?: () => void;
@@ -75,9 +107,9 @@ export function Sheet({ children, onClose, compact = false, onShow, backgroundCo
   </Modal>;
 }
 export const S = StyleSheet.create({
-  text: { fontFamily: 'RobotoRegular', fontSize: tokens.typography.body.fontSize, lineHeight: 21, color: C.ink, includeFontPadding: false },
-  heading: { fontFamily: 'RobotoRegular', fontSize: tokens.typography.heading.fontSize, lineHeight: 34, letterSpacing: 0.7 },
-  sectionHeading: { fontFamily: 'RobotoMedium', fontSize: tokens.typography.section.fontSize, lineHeight: 30 },
+  text: { fontFamily: Fonts.regular, fontSize: tokens.typography.body.fontSize, lineHeight: 21, color: C.ink, includeFontPadding: false },
+  heading: { fontFamily: Fonts.regular, fontSize: tokens.typography.heading.fontSize, lineHeight: 34, letterSpacing: 0.7 },
+  sectionHeading: { fontFamily: Fonts.medium, fontSize: tokens.typography.section.fontSize, lineHeight: 30 },
   row: { flexDirection: 'row', alignItems: 'center' },
   iconButton: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
   disc: { position: 'absolute', width: 40, height: 40, borderRadius: 999 },
@@ -86,7 +118,7 @@ export const S = StyleSheet.create({
   pillEmpty: { borderWidth: 1, borderStyle: 'dashed', borderColor: C.border },
   pillActive: { backgroundColor: '#1010120A' },
   pillContent: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 11, paddingRight: 19, height: 40 },
-  pillText: { fontFamily: 'RobotoMedium', fontSize: 13.1, lineHeight: 17, letterSpacing: 0.6, marginTop: 1.1 },
+  pillText: { fontFamily: Fonts.medium, fontSize: 13.1, lineHeight: 17, letterSpacing: 0.6, marginTop: 1.1 },
   modalOuter: { flex: 1, backgroundColor: '#00000040', alignItems: 'center', justifyContent: 'flex-end', paddingTop: Platform.OS === 'web' ? 0 : 49 },
   sheet: { backgroundColor: C.surface, borderTopLeftRadius: tokens.rounded.sheet, borderTopRightRadius: tokens.rounded.sheet, overflow: 'hidden', paddingBottom: Platform.OS === 'ios' ? 24 : 0 },
   handleArea: { height: 52, alignItems: 'center' },

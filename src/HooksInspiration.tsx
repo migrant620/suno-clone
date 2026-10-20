@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon, Label } from './ui';
+import { Fonts } from './fonts';
 
 function dailyCountdown() {
   const now = Date.now();
@@ -36,11 +37,11 @@ export function HooksInspiration({ onSelect, scrollOffsets }: { onSelect: (kind:
   </View>;
 }
 const S = StyleSheet.create({
-  section: { flexShrink: 0 }, heading: { fontSize: 18, lineHeight: 24, letterSpacing: 0.13, color: '#F7F4EF', marginHorizontal: 16, marginTop: 11, marginBottom: 7, fontFamily: 'RobotoMedium' } ,
+  section: { flexShrink: 0 }, heading: { fontSize: 18, lineHeight: 24, letterSpacing: 0.13, color: '#F7F4EF', marginHorizontal: 16, marginTop: 11, marginBottom: 7, fontFamily: Fonts.medium } ,
   cards: { paddingHorizontal: 16, gap: 12 }, card: { width: 150, height: 150, borderRadius: 12, overflow: 'hidden', backgroundColor: '#19191B' },
   image: { position: 'absolute', width: '100%', height: '100%' }, borderMotion: { position: 'absolute', width: 214, height: 214, left: -32, top: -32 }, photoInner: { position: 'absolute', top: 2, left: 2, right: 2, bottom: 2, borderRadius: 10, overflow: 'hidden' },
-  photoText: { position: 'absolute', top: 12, left: 14, right: 12 }, newFeature: { color: '#FF399C', fontSize: 12, lineHeight: 16, letterSpacing: 0.2, fontFamily: 'RobotoMedium' }, title: { color: '#FFFFFF', fontSize: 14, lineHeight: 20, fontFamily: 'RobotoMedium' }, regularText: { margin: 10 },
+  photoText: { position: 'absolute', top: 12, left: 14, right: 12 }, newFeature: { color: '#FF399C', fontSize: 12, lineHeight: 16, letterSpacing: 0.2, fontFamily: Fonts.medium }, title: { color: '#FFFFFF', fontSize: 14, lineHeight: 20, fontFamily: Fonts.medium }, regularText: { margin: 10 },
   iconInset: { right: 14, bottom: 14 },
   icon: { position: 'absolute', width: 34, height: 34, right: 10, bottom: 10, borderRadius: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: '#FFFFFF66', alignItems: 'center', justifyContent: 'center' },
-  countdown: { position: 'absolute', left: 13, bottom: 16, backgroundColor: '#00000066', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 99 }, clock: { fontSize: 11, lineHeight: 12, fontFamily: 'RobotoBold', fontVariant: ['tabular-nums'], color: '#FF486B', letterSpacing: 2 },
+  countdown: { position: 'absolute', left: 13, bottom: 16, backgroundColor: '#00000066', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 99 }, clock: { fontSize: 11, lineHeight: 12, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'], color: '#FF486B', letterSpacing: 2 },
 });

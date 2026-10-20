@@ -7,7 +7,7 @@ import Pause from 'lucide-react-native/icons/pause';
 import { AudioTrack } from './audioData';
 import Library from 'lucide-react-native/icons/library';
 import Sparkle from 'lucide-react-native/icons/sparkle';
-import { Ionicons } from './ui';
+import { GlyphLabel, Ionicons } from './ui';
 
 type Tab = 'hooks' | 'search' | 'create' | 'library' | 'profile';
 const tabs: { id: Tab; label: string }[] = [
@@ -37,17 +37,17 @@ export function MainNavigation({ tab, dark, avatarUri, onSelect, playback }: {
       </View>;
       const color = selected ? (dark ? '#F7F4EF' : '#101012') : (dark ? '#6A6A72' : '#A3A3A3');
       const backgroundColor = selected ? selectedFill : surface;
-      return <View key={id} style={[styles.slot, (id === 'library' || id === 'profile') && styles.wideSlot, !!compact && { width: 68 }]}><Pressable accessibilityRole="button" accessibilityLabel={label}
+      return <View key={id} style={[styles.slot, (id === 'library' || id === 'profile') && styles.wideSlot, !!compact && { width: 68 }]}><Pressable accessibilityRole="button" aria-labelledby={`nav-glyph-${id}`}
         accessibilityState={{ selected }} aria-pressed={selected}
         onPress={() => onSelect(id)} style={({ pressed }) => [styles.target, id === 'create' && styles.createTarget, pressed && { opacity: 0.55 }]}>
         <View testID={`navigation-pill-${id}`} pointerEvents="none" style={[styles.pill, { backgroundColor }]}>
-          <View accessible={false} aria-hidden importantForAccessibility="no-hide-descendants" style={styles.glyph}>
+          <GlyphLabel id={`nav-glyph-${id}`} label={label} size={30.2} offsetY={0.2}><View accessible={false} aria-hidden importantForAccessibility="no-hide-descendants" style={styles.glyph}>
             {id === 'hooks' && <><Square size={28} strokeWidth={2.3} color={color} /><Play size={11} strokeWidth={2} color={color} fill={color} style={styles.play} /></>}
             {id === 'search' && <Search size={28} strokeWidth={2.2} color={color} />}
             {id === 'create' && <><Ionicons name="musical-notes" size={26} color={color} style={styles.notes} /><View style={[styles.sparkle, { backgroundColor }]}><Sparkle size={18} strokeWidth={0} fill={color} color={color} /></View></>}
             {id === 'library' && <Library size={28} strokeWidth={2.2} color={color} />}
             {id === 'profile' && <Image source={avatarUri ? { uri: avatarUri } : require('../assets/demo-avatar.png')} style={styles.avatar} />}
-          </View>
+          </View></GlyphLabel>
         </View>
       </Pressable></View>;
     })}

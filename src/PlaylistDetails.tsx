@@ -11,6 +11,7 @@ import { SongRow } from './SongRow';
 import { useLibraryPlayback } from './useLibraryPlayback';
 import { usePlaylistDownload } from './usePlaylistDownload';
 import { C, Icon, IconButton, Label } from './ui';
+import { Fonts } from './fonts';
 
 export function PlaylistDetails({ item, liked, shared = false, tracks, player, onBack, onCreate, onAdd, onMenu, onSongOptions, backLabel = 'Back to Library', curated }: {
   curated?: { saved: boolean; busy: boolean; error: string; onToggle: () => void };
@@ -63,7 +64,7 @@ export function PlaylistDetails({ item, liked, shared = false, tracks, player, o
       <View style={D.header}><IconButton name="chevron-left" label={backLabel} onPress={onBack} style={D.headerButton} /><View style={{ flex: 1 }} />{populated && <><IconButton name="magnify" label="Search Playlist Songs" onPress={() => setSearching(true)} style={D.headerButton} /><IconButton name="sort-variant" label="Sort Playlist Songs" onPress={() => setSortOpen(true)} style={D.headerButton} /></>}{!liked && !shared && <IconButton name="dots-vertical" label="Playlist Actions" onPress={onMenu} style={D.headerButton} />}</View>
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
         <View style={D.cover}><Image source={cover} style={{ width: 210, height: 210 }} />{liked && <View style={StyleSheet.absoluteFill}><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Icon name="thumb-up" size={67} color="#B8DEEF" /></View></View>}</View>
-        <View style={D.info}><Label style={D.category}>PLAYLIST</Label><Label style={[D.title, curated && { fontFamily: 'RobotoRegular' }]}>{item.name}</Label>{curated && !!item.description && <Label style={{ fontSize: 12, lineHeight: 16, marginTop: 4 }}>{item.description}</Label>}<View style={D.metadata}><Image source={require('../assets/demo-avatar.png')} style={D.avatar} /><Label style={D.metaText}>{curated ? 'M620' : 'Demo listener'} · {tracks.length} {tracks.length === 1 ? 'song' : 'songs'}</Label><View style={{ flex: 1 }} /><Icon name={item.isPublic ? 'earth' : 'lock'} size={16} color={C.muted} /><Label style={D.metaText}>{item.isPublic ? 'Public' : 'Private'}</Label></View>{!curated && !!item.description && <Label style={{ marginTop: 8 }}>{item.description}</Label>}</View>
+        <View style={D.info}><Label style={D.category}>PLAYLIST</Label><Label style={[D.title, curated && { fontFamily: Fonts.regular }]}>{item.name}</Label>{curated && !!item.description && <Label style={{ fontSize: 12, lineHeight: 16, marginTop: 4 }}>{item.description}</Label>}<View style={D.metadata}><Image source={require('../assets/demo-avatar.png')} style={D.avatar} /><Label style={D.metaText}>{curated ? 'M620' : 'Demo listener'} · {tracks.length} {tracks.length === 1 ? 'song' : 'songs'}</Label><View style={{ flex: 1 }} /><Icon name={item.isPublic ? 'earth' : 'lock'} size={16} color={C.muted} /><Label style={D.metaText}>{item.isPublic ? 'Public' : 'Private'}</Label></View>{!curated && !!item.description && <Label style={{ marginTop: 8 }}>{item.description}</Label>}</View>
         {populated ? <>
           <View style={D.playActions}><Pressable accessibilityRole="button" accessibilityLabel="Play Playlist" onPress={() => void player.start(sorted[0], sorted, item.id)} style={D.play}><Icon name="play" size={24} color={C.surface} /><Label style={{ color: C.surface }}>Play</Label></Pressable><IconButton name="share-variant-outline" label="Share Playlist" onPress={() => setSharing(true)} style={D.round} />{curated && <IconButton name={curated.saved ? 'check' : 'plus'} label={curated.saved ? 'Remove collection from Library' : 'Add collection to Library'} disabled={curated.busy} onPress={curated.onToggle} style={D.round} />}<IconButton name={download.status === 'downloaded' ? 'download-circle' : download.status === 'downloading' ? 'close' : 'arrow-down'} label={download.status === 'downloaded' ? 'Remove playlist from offline' : download.status === 'downloading' ? 'Cancel playlist download' : 'Download Playlist'} onPress={() => download.status === 'downloaded' ? setRemovingDownload(true) : download.status === 'downloading' ? download.cancel() : void download.download()} style={D.round} /></View>
           {!!curated?.error && <Label accessibilityRole="alert" style={D.error}>{curated.error}</Label>}{!!download.error && <Label accessibilityLiveRegion="polite" style={D.error}>{download.error}</Label>}
@@ -89,7 +90,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   cover: { width: 210, height: 210, borderRadius: 20, overflow: 'hidden', alignSelf: 'center', marginTop: 4 },
   info: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16, gap: 3 },
   category: { fontSize: 14, color: C.muted },
-  title: { fontFamily: 'RobotoBold', fontSize: 28, lineHeight: 34 },
+  title: { fontFamily: Fonts.bold, fontSize: 28, lineHeight: 34 },
   metadata: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   avatar: { width: 20, height: 20, borderRadius: 99 },
   metaText: { color: C.muted, fontSize: 14, flexShrink: 1 },
@@ -100,9 +101,9 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   created: { paddingVertical: 14, fontSize: 14, lineHeight: 21, textAlign: 'center', color: C.muted },
   searchHeader: { flexDirection: 'row', alignItems: 'center', gap: 16, height: 64, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
   searchBox: { flex: 1, backgroundColor: C.surface === '#101012' ? C.control : '#10101206', height: 48, borderRadius: 8, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  searchInput: { flex: 1, height: 48, fontFamily: 'RobotoRegular', fontSize: 16, color: C.ink, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  searchInput: { flex: 1, height: 48, fontFamily: Fonts.regular, fontSize: 16, color: C.ink, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   noResults: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, paddingBottom: 40 },
-  noResultsTitle: { fontSize: 16, fontFamily: 'RobotoMedium', textAlign: 'center' },
+  noResultsTitle: { fontSize: 16, fontFamily: Fonts.medium, textAlign: 'center' },
   noResultsHint: { fontSize: 14, color: C.muted, textAlign: 'center', marginTop: -12, paddingHorizontal: 16 },
   sortMenu: { position: 'absolute', right: 72, top: 56, width: 150, borderRadius: 20, backgroundColor: C.toolbar, paddingVertical: 12, boxShadow: '0px 3px 8px #00000022' },
   sortRow: { minHeight: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 8 },

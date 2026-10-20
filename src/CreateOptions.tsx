@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Icon, Label, Sheet } from './ui';
 import { useSurfaceColors } from './Theme';
+import { Fonts } from './fonts';
 
 export function CreateOptions({ gender, title, onGender, onTitle, onClose }: {
   gender?: 'Male' | 'Female' | null; title: string;
@@ -37,5 +38,5 @@ const S = StyleSheet.create({
   selection: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
   text: { fontSize: 14, lineHeight: 20 },
   titleRow: { gap: 8 },
-  input: { flex: 1, height: 56, fontFamily: 'RobotoRegular', fontSize: 14, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  input: { flex: 1, height: 56, fontFamily: Fonts.regular, fontSize: 14, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
 });

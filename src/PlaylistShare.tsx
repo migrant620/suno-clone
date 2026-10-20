@@ -6,6 +6,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Playlist } from './libraryState';
 import { encodeSharedPlaylist } from './playlistSharing';
 import { C, Icon, IconName, Label, Sheet } from './ui';
+import { Fonts } from './fonts';
 
 export function PlaylistShare({ playlist, tracks, onClose }: { playlist: Playlist; tracks?: AudioTrack[]; onClose: () => void }) {
   const [notice, setNotice] = useState('');
@@ -33,7 +34,7 @@ export function PlaylistShare({ playlist, tracks, onClose }: { playlist: Playlis
 }
 
 const P = StyleSheet.create({
-  title: { fontSize: 16, fontFamily: 'RobotoMedium', textAlign: 'center', marginTop: -8, marginBottom: 24 },
+  title: { fontSize: 16, fontFamily: Fonts.medium, textAlign: 'center', marginTop: -8, marginBottom: 24 },
   options: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 16, paddingHorizontal: 4 },
   option: { width: '33.333%', alignItems: 'center', gap: 10, paddingBottom: 8 },
   icon: { width: 48, height: 48, borderRadius: 99, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center' },

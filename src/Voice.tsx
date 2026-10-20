@@ -10,6 +10,7 @@ import { useRecorder } from './useRecorder';
 import { useVoiceWaveform } from './useVoiceWaveform';
 import { VoiceRange, VoiceTrim } from './VoiceTrim';
 import { Icon, IconButton, Label, Sheet } from './ui';
+import { Fonts } from './fonts';
 
 type Props = { ownerName: string; songs: AudioTrack[]; publicSongs: AudioTrack[]; likedSongs: AudioTrack[]; onClose: () => void; onUse: (track: AudioTrack) => void; onCreate: (track: AudioTrack, isActive: () => boolean) => Promise<void>; canCreate: boolean };
 type Route = 'main' | 'library' | 'loading' | 'trim' | 'sample';
@@ -159,13 +160,13 @@ export function Voice({ ownerName, songs, publicSongs, likedSongs, onClose, onUs
 }
 
 const V = StyleSheet.create({
-  main: { flex: 1 }, title: { fontFamily: 'RobotoBold', fontSize: 18, lineHeight: 22, textAlign: 'center', color: '#101012' },
+  main: { flex: 1 }, title: { fontFamily: Fonts.bold, fontSize: 18, lineHeight: 22, textAlign: 'center', color: '#101012' },
   center: { flex: 1, minHeight: 170, justifyContent: 'center' }, heroGroup: { alignItems: 'center', transform: [{ translateY: -20 }] }, hero: { width: 196, height: 196 },
   sing: { fontSize: 18, lineHeight: 22, color: '#101012', textAlign: 'center', marginTop: 18, paddingHorizontal: 12 },
   controls: { height: 100, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 24, marginBottom: 24 },
   side: { width: 56, alignItems: 'center', marginBottom: 2 }, sideCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#E5E2DC', alignItems: 'center', justifyContent: 'center' }, sideLabel: { fontSize: 12, lineHeight: 16, marginTop: 4, color: '#65636A' },
   record: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#D7D4CF', alignItems: 'center', justifyContent: 'center' }, recordCore: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#C32906' }, stop: { width: 38, height: 38, borderRadius: 6, backgroundColor: '#C32906' }, pressed: { opacity: 0.65 },
-  pickerTitle: { color: '#101012', fontFamily: 'RobotoRegular', fontSize: 16, lineHeight: 20, marginTop: -8, textAlign: 'center' }, subtitle: { color: '#65636A', fontSize: 12, lineHeight: 16, marginTop: 4, textAlign: 'center' },
+  pickerTitle: { color: '#101012', fontFamily: Fonts.regular, fontSize: 16, lineHeight: 20, marginTop: -8, textAlign: 'center' }, subtitle: { color: '#65636A', fontSize: 12, lineHeight: 16, marginTop: 4, textAlign: 'center' },
   tabs: { flexDirection: 'row', marginTop: 6, borderBottomWidth: 1, borderBottomColor: '#969398' }, tab: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' }, selectedTab: { borderBottomColor: '#101012' }, tabLabel: { color: '#101012', fontSize: 14 },
   list: { padding: 16, gap: 12 }, song: { minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12 }, cover: { width: 48, height: 48, borderRadius: 8 }, songTitle: { color: '#101012', fontSize: 14 }, songDetail: { color: '#65636A', fontSize: 12 },
   sample: { flex: 1, padding: 24, paddingTop: 0 }, disclosure: { color: '#65636A', fontSize: 13, lineHeight: 19, textAlign: 'center', marginTop: 16 }, sampleCenter: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24 }, sampleName: { color: '#101012', fontSize: 20, lineHeight: 26, textAlign: 'center' }, duration: { color: '#65636A', fontSize: 16, marginTop: 12, fontVariant: ['tabular-nums'] }, preview: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#D7D4CF' }, another: { minHeight: 48, alignItems: 'center', justifyContent: 'center' }, use: { height: 56, borderRadius: 28, backgroundColor: '#101012', alignItems: 'center', justifyContent: 'center', marginTop: 8 }, error: { color: '#9D280A', fontSize: 13, lineHeight: 19, textAlign: 'center', padding: 12 },

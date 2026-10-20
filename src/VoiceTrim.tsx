@@ -3,6 +3,7 @@ import { Image, Keyboard, Platform, Pressable, StyleSheet, TextInput, View } fro
 import { useTrackPlayback } from './Audio';
 import { AudioTrack, clockTime } from './audioData';
 import { Icon, Label } from './ui';
+import { Fonts } from './fonts';
 
 export type VoiceRange = { start: number; end: number };
 export function VoiceTrim({ track, peaks, duration, name, placeholder, range, onName, onRange, onStartOver, onNext, bottom }: {
@@ -84,7 +85,7 @@ export function VoiceTrim({ track, peaks, duration, name, placeholder, range, on
 }
 const T = StyleSheet.create({
   page: { flex: 1, paddingHorizontal: 24 }, center: { flex: 1, justifyContent: 'center', minHeight: 208 }, editor: { gap: 16 },
-  row: { height: 80, flexDirection: 'row', alignItems: 'center', gap: 11 }, art: { width: 80, height: 80, justifyContent: 'center', alignItems: 'center' }, artImage: { position: 'absolute', width: 80, height: 80 }, nameRow: { flex: 1, flexDirection: 'row', alignItems: 'center' }, input: { minWidth: 0, flexShrink: 1, maxWidth: '100%', fontFamily: 'RobotoRegular', fontSize: 16, lineHeight: 20, height: 48, color: '#101012', padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) }, edit: { width: 36, height: 48, alignItems: 'center', justifyContent: 'center' },
+  row: { height: 80, flexDirection: 'row', alignItems: 'center', gap: 11 }, art: { width: 80, height: 80, justifyContent: 'center', alignItems: 'center' }, artImage: { position: 'absolute', width: 80, height: 80 }, nameRow: { flex: 1, flexDirection: 'row', alignItems: 'center' }, input: { minWidth: 0, flexShrink: 1, maxWidth: '100%', fontFamily: Fonts.regular, fontSize: 16, lineHeight: 20, height: 48, color: '#101012', padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) }, edit: { width: 36, height: 48, alignItems: 'center', justifyContent: 'center' },
   wave: { height: 80, overflow: 'hidden', borderRadius: 4 }, bars: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }, shade: { position: 'absolute', top: 0, bottom: 0, backgroundColor: '#EDEAE4B3' }, selection: { position: 'absolute', top: 0, bottom: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#FD429C' }, handle: { position: 'absolute', top: 0, bottom: 0, width: 12, backgroundColor: '#FD429C' }, playhead: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: '#101012' },
   hint: { color: '#65636A', fontSize: 12, lineHeight: 16, textAlign: 'center' }, error: { fontSize: 12, color: '#9D280A', textAlign: 'center' }, actions: { flexDirection: 'row', gap: 8 }, button: { flex: 1, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' }, secondary: { backgroundColor: '#DEDBD5' }, primary: { backgroundColor: '#101012' }, buttonLabel: { fontSize: 16, lineHeight: 20, color: '#101012' },
 });

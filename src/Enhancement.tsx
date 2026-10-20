@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Action, Draft, EditorKind } from './state';
 import { C, Label } from './ui';
+import { Fonts } from './fonts';
 
 export function useEnhancement(state: Draft, dispatch: React.Dispatch<Action>) {
   const [pending, setPending] = useState<EditorKind | null>(null);
@@ -40,7 +41,7 @@ export function useEnhancement(state: Draft, dispatch: React.Dispatch<Action>) {
 const E = StyleSheet.create({
   outer: { flex: 1, backgroundColor: '#00000055', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 36 },
   dialog: { width: '100%', maxWidth: 360, padding: 24, borderRadius: 24, backgroundColor: C.toolbar },
-  title: { textAlign: 'center', fontFamily: 'RobotoMedium', marginBottom: 16 },
+  title: { textAlign: 'center', fontFamily: Fonts.medium, marginBottom: 16 },
   description: { color: C.muted, textAlign: 'center', marginBottom: 20, lineHeight: 24 },
   buttons: { flexDirection: 'row', gap: 12, marginTop: 16 },
   cancel: { flex: 1, borderRadius: 999, minHeight: 56, backgroundColor: '#10101208', justifyContent: 'center', alignItems: 'center' },

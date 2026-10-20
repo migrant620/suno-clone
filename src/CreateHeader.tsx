@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { Icon, Label } from './ui';
 import { useSurfaceColors } from './Theme';
 import { useCreditPromotion } from './useCreditPromotion';
+import { Fonts } from './fonts';
 
 export function CreateHeader({ mode, model, freePlan, promotion, onMode, onModel, onOffer, modelOpen }: {
   mode: 'Simple' | 'Advanced'; model: string; freePlan: boolean; modelOpen: boolean;
@@ -34,13 +35,13 @@ const H = StyleSheet.create({
   header: { marginHorizontal: 16, zIndex: 1 },
   row: { height: 64, marginLeft: -5.8, marginRight: -4, alignItems: 'center', justifyContent: 'center' },
   mode: { flexDirection: 'row', alignItems: 'center', gap: 0, height: 48 },
-  modeText: { fontFamily: 'RobotoMedium', fontSize: 17.35, lineHeight: 22, letterSpacing: 0.4 },
+  modeText: { fontFamily: Fonts.title, fontSize: 16.98, lineHeight: 22, letterSpacing: 0.6 },
   model: { position: 'absolute', top: 8, right: 4, width: 93.2, height: 48, paddingLeft: 12.8, paddingRight: 0, flexDirection: 'row', alignItems: 'center', gap: 0 },
   modelBorder: { borderWidth: 1, borderRadius: 24 },
-  modelText: { fontFamily: 'RobotoRegular', fontSize: 12.6, lineHeight: 15, letterSpacing: 0.08, flexShrink: 0 },
+  modelText: { fontFamily: Fonts.regular, fontSize: 12.6, lineHeight: 15, letterSpacing: 0.08, flexShrink: 0 },
   modelLabel: { width: 48, minWidth: 48, alignItems: 'center' },
   modelChevron: { width: 16, height: 16, marginLeft: 0.4, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
   promotion: { position: 'absolute', top: 56, left: 0, right: 0, minHeight: 36, flexDirection: 'row', gap: 4, alignItems: 'center', justifyContent: 'center' },
-  offerTitle: { color: '#E88725', fontFamily: 'RobotoBold', lineHeight: 16, flexShrink: 1 },
-  timer: { fontFamily: 'RobotoBold', fontSize: 12, lineHeight: 16 },
+  offerTitle: { color: '#E88725', fontFamily: Fonts.bold, lineHeight: 16, flexShrink: 1 },
+  timer: { fontFamily: Fonts.bold, fontSize: 12, lineHeight: 16 },
 });

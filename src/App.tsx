@@ -47,7 +47,6 @@ import { PlaylistShare } from './PlaylistShare';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Image, Keyboard, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { Library, LibraryRoute } from './Library';
@@ -68,17 +67,34 @@ import { AudioTrack } from './audioData';
 import { useAudioDraft } from './useAudioDraft';
 import { TextEditor } from './TextEditor';
 import { Accent, C, Icon, IconButton, IconName, Label, Pill, S, Sheet } from './ui';
+import { Fonts, fontFiles, iconFontFiles } from './fonts';
 
 const DRAFT_KEY = 'suno-ui:local-draft:v1';
+const FONT_GRACE_MS = 1200;
+const promptHints = {
+  idle: ['A grungy drum n bass track', 'Euphoric festival song', 'An upbeat summer anthem', 'An acoustic love song', 'An epic orchestral score', 'A high-energy trap banger', 'A soulful R&B slow jam', 'A dark cinematic instrumental', 'A chill lo-fi study beat', 'A dreamy a cappella'],
+  images: ["Turn my ex's photo into a breakup anthem", "Roast my friend's photo and make a diss track", "Make my pet's photo tell its life story"],
+  videos: ['Turn my night out video into an anthem'],
+  audio: ['Change the vibe of the song', 'Remove the vocals', 'Make it chopped and screwed'],
+};
+const promptPlaceholder = (kind: keyof typeof promptHints, visit: number) => promptHints[kind][visit % promptHints[kind].length];
 const suggestions = [['flute', 'male voice', 'piano', 'synthwave'], ['japanese', 'rap', 'dreamy', 'acoustic'], ['ambient', 'indie folk', 'warm bass', 'jazz']];
 type Overlay = 'add' | 'create-options' | 'audio' | 'voice' | 'model' | 'model-offer' | 'upgrade' | 'help' | 'record' | 'generation' | null;
 
 export default React.memo(function App() {
-  const [fontsLoaded, fontError] = useFonts({ InstrumentSerif: require('../assets/fonts/InstrumentSerif-Regular.ttf'), RobotoRegular: require('../assets/fonts/Roboto_400Regular.ttf'), RobotoMedium: require('../assets/fonts/Roboto_500Medium.ttf'), RobotoBold: require('../assets/fonts/Roboto_700Bold.ttf') });
-  return <GestureHandlerRootView style={{ flex: 1 }}><SafeAreaProvider><ThemeProvider>
+  const [fontsLoaded, fontError] = useFonts(fontFiles);
+  const [iconsLoaded, iconError] = useFonts(iconFontFiles);
+  const [fontGraceOver, setFontGraceOver] = useState(false);
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && (iconsLoaded || iconError)) return undefined;
+    const timer = setTimeout(() => setFontGraceOver(true), FONT_GRACE_MS);
+    return () => clearTimeout(timer);
+  }, [fontsLoaded, fontError, iconsLoaded, iconError]);
+  const fontsSettled = ((fontsLoaded || !!fontError) && (iconsLoaded || !!iconError)) || fontGraceOver;
+  return <View style={{ flex: 1 }}><SafeAreaProvider><ThemeProvider>
     <StatusBar style="dark" />
-    {fontsLoaded ? <LocalSession><CreationApp /></LocalSession> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface }}>{fontError ? <Label>Font loading failed. Reload to retry.</Label> : <ActivityIndicator color={C.ink} />}</View>}
-  </ThemeProvider></SafeAreaProvider></GestureHandlerRootView>;
+    {fontsSettled ? <LocalSession><CreationApp /></LocalSession> : <View style={{ flex: 1, backgroundColor: C.surface }} />}
+  </ThemeProvider></SafeAreaProvider></View>;
 });
 
 function CreationApp() {
@@ -94,6 +110,9 @@ function CreationApp() {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const addAnchor = useRef<View>(null);
   const [tab, setTab] = useState<'create' | 'library' | 'hooks' | 'search' | 'profile'>('create');
+  const [promptVisit, setPromptVisit] = useState(0);
+  const tabShown = useRef(tab);
+  useEffect(() => { if (tab === 'create' && tabShown.current !== 'create') setPromptVisit(v => v + 1); tabShown.current = tab; }, [tab]);
   const [libraryRoute, setLibraryRoute] = useState<LibraryRoute>('home');
   const library = useLibrary();
   const account = useLocalProfile();
@@ -290,7 +309,7 @@ function CreationApp() {
     const h = state[kind]; const title = kind === 'lyrics' ? 'Lyrics' : 'Styles';
     return <View style={A.section} key={kind}>
       <View style={[S.row, A.sectionHeader]}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${collapsed[kind] ? 'Expand' : 'Collapse'} ${title}`} onPress={() => setCollapsed(c => ({ ...c, [kind]: !c[kind] }))} style={[S.row, { flex: 1, gap: 6 }]}><Icon name={collapsed[kind] ? 'chevron-right' : 'chevron-down'} size={20} /><Label style={A.sectionTitle}>{title}</Label></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={`${collapsed[kind] ? 'Expand' : 'Collapse'} ${title}`} onPress={() => setCollapsed(c => ({ ...c, [kind]: !c[kind] }))} style={[S.row, { flex: 1, gap: 5 }]}><Icon name={collapsed[kind] ? 'chevron-right' : 'chevron-down'} size={20} /><Label style={A.sectionTitle}>{title}</Label></Pressable>
         {h.past.length > 0 && <IconButton name="undo" label={`Undo ${title}`} onPress={() => dispatch({ type: 'undo', kind })} circle={disc} />}
         {!!h.value.trim() && <>
           <IconButton name={state.saved.some(item => item.kind === kind && item.value === h.value) ? 'bookmark' : 'bookmark-outline'} label={`Save ${kind === 'lyrics' ? 'Lyrics' : 'Style'}`} onPress={() => openEditor(kind, 'save')} circle={disc} />
@@ -326,7 +345,7 @@ function CreationApp() {
         <CreateHeader modelOpen={overlay === 'model'} mode={state.mode} model={entitlements.data.model} freePlan={entitlements.ready && entitlements.data.plan === 'Free'} promotion={promotion} onMode={switchMode} onModel={() => { Keyboard.dismiss(); setOverlay('model'); }} onOffer={() => { Keyboard.dismiss(); promotion.start(); setOverlay('upgrade'); }} />
         {state.mode === 'Simple' ? <View style={A.simpleCard}>
           <View style={A.chips}>
-            <View ref={addAnchor} collapsable={false} style={A.addTarget}><View pointerEvents="none" style={A.addCircle} /><IconButton name="plus" label="Add to Song" size={27.8} onPress={() => { Keyboard.dismiss(); setOverlay('add'); }} /></View>
+            <View ref={addAnchor} collapsable={false} style={A.addTarget}><View pointerEvents="none" style={A.addCircle} /><IconButton name="plus" label="Add to Song" size={27.8} glyphBox={24} onPress={() => { Keyboard.dismiss(); setOverlay('add'); }} /></View>
             {mediaChip}
             {selectedVoice && <Pill title={selectedVoice.name} icon="account-voice" active onPress={() => setVoiceDetail(selectedVoice)} onRemove={() => dispatch({ type: 'voice', id: null })} />}
             {audio && <AudioChip track={audio} playback={audioPlayback} onRemove={() => setRemovingAudio(true)} />}
@@ -335,12 +354,12 @@ function CreationApp() {
             {(['lyrics', 'styles'] as EditorKind[]).sort((a, b) => Number(!!state[b].value) - Number(!!state[a].value)).map(kind => <Pill key={kind} title={kind === 'lyrics' ? 'Lyrics' : 'Styles'} icon={kind === 'lyrics' ? 'playlist-music' : 'music-circle-outline'} active={!!state[kind].value} onPress={() => openEditor(kind)} onRemove={() => dispatch({ type: 'reset', kind })} />)}
             {!audio && <Pill title="Audio" icon="waveform" onPress={() => { audioPlayback.player.pause(); setOverlay('audio'); }} />}
           </View>
-          <TextInput accessibilityLabel="Song description" multiline value={state.prompt} onChangeText={value => dispatch({ type: 'field', field: 'prompt', value })} style={[A.input, { flex: 1, marginTop: 8 }]} placeholder={media.draft?.kind === 'images' ? 'Take my vacation photo and turn into a song' : media.draft?.kind === 'videos' ? 'Turn my night out video into an anthem' : 'An acoustic love song'} placeholderTextColor={theme.dark ? '#766964' : C.disabled} selectionColor={C.primary} />
-          <IconButton name="help-circle" label="Learn what Create can do" size={28.3} onPress={() => setOverlay('help')} style={A.help}
+          <TextInput accessibilityLabel="Song description" multiline value={state.prompt} onChangeText={value => dispatch({ type: 'field', field: 'prompt', value })} style={[A.input, { flex: 1, marginTop: 8 }]} placeholder={promptPlaceholder(media.draft?.kind || (audio ? 'audio' : 'idle'), promptVisit)} placeholderTextColor={theme.dark ? '#766964' : C.disabled} selectionColor={C.primary} />
+          <IconButton name="help-circle" label="Learn what Create can do" size={28.3} glyphBox={24} onPress={() => setOverlay('help')} style={A.help}
           color={theme.dark ? C.handle : '#5B5B62'} />
         </View> : <ScrollView style={{ flex: 1 }} contentContainerStyle={A.advancedContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {mediaChip && <View style={{ alignSelf: 'flex-start' }}>{mediaChip}</View>}
-          {(!audio || !selectedVoice) && <View style={{ flexDirection: 'row', gap: 8 }}>{!audio && <Pressable accessibilityRole="button" onPress={() => setOverlay('audio')} style={A.attachment}><Icon name="plus" size={24} /><Label>Audio</Label></Pressable>}{!selectedVoice && <Pressable accessibilityRole="button" onPress={() => openVoice()} style={A.attachment}><Icon name="plus" size={24} /><Label>Voice</Label></Pressable>}</View>}
+          {(!audio || !selectedVoice) && <View style={{ flexDirection: 'row', gap: 8 }}>{!audio && <Pressable accessibilityRole="button" onPress={() => setOverlay('audio')} style={A.attachment}><Icon name="plus" size={24} /><Label style={A.attachmentText}>Audio</Label></Pressable>}{!selectedVoice && <Pressable accessibilityRole="button" onPress={() => openVoice()} style={A.attachment}><Icon name="plus" size={24} /><Label style={A.attachmentText}>Voice</Label></Pressable>}</View>}
           {audio && <AudioAttachment key={audio.id} track={audio} playback={audioPlayback} mode={audioEdit.mode} start={audioEdit.start} onRemove={() => { setAudio(null); setAudioEdit({ mode: 'Cover', start: 0 }); }} onExtendChange={updateAudioEdit} />}
           {selectedVoice && <VoiceAttachment voice={selectedVoice} onRemove={() => dispatch({ type: 'voice', id: null })} />}
           {section('lyrics')}{section('styles')}
@@ -348,7 +367,7 @@ function CreationApp() {
         </ScrollView>}
 
         <View style={[A.createRow, state.mode === 'Advanced' && { marginTop: 0 }]}>
-          <IconButton name="delete" label="Clear all" size={19.5} disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
+          <IconButton name="delete" label="Clear" size={19.5} glyphBox={24} disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
           <Pressable accessibilityRole="button" accessibilityLabel="Create" disabled={!canCreate} accessibilityState={{ disabled: !canCreate }} onPress={() => setOverlay('generation')} style={{ flex: 1 }}>
             {canCreate ? <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent> : <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent>}
           </Pressable>
@@ -397,7 +416,7 @@ function CreationApp() {
 }
 
 function menuItem(title: string, icon: IconName, onPress: () => void, color: string) {
-  return <Pressable accessibilityRole="button" onPress={onPress} style={{ height: 56, marginHorizontal: 16, paddingHorizontal: 16, gap: 10, flexDirection: 'row', alignItems: 'center' }}><Icon name={icon} color={color} /><Label style={{ fontFamily: 'RobotoMedium', fontSize: 14, lineHeight: 17, color }}>{title}</Label></Pressable>;
+  return <Pressable accessibilityRole="button" onPress={onPress} style={{ height: 56, marginHorizontal: 16, paddingHorizontal: 16, gap: 10, flexDirection: 'row', alignItems: 'center' }}><Icon name={icon} color={color} /><Label style={{ fontFamily: Fonts.medium, fontSize: 14, lineHeight: 17, color }}>{title}</Label></Pressable>;
 }
 const styles = (C: ThemeColors) => StyleSheet.create({
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface },
@@ -408,25 +427,26 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   addCircle: { position: 'absolute', width: 40, height: 40, borderRadius: 999, backgroundColor: C.surface === '#101012' ? '#FFFFFF08' : '#1010120A' },
   help: { position: 'absolute', right: 3, bottom: 3 },
   chips: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 8, rowGap: 0, marginTop: -4 },
-  input: { fontFamily: 'RobotoRegular', fontSize: 16, lineHeight: 20, color: C.ink, padding: 0, textAlignVertical: 'top', ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  input: { fontFamily: Fonts.regular, fontSize: 16, lineHeight: 20, color: C.ink, padding: 0, textAlignVertical: 'top', ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   circle: { width: 40, height: 40, backgroundColor: C.surface === '#101012' ? '#FFFFFF08' : '#10101206', borderRadius: 999 },
   advancedContent: { paddingHorizontal: 16, gap: 16, paddingBottom: 16 },
+  attachmentText: { letterSpacing: 0.25 },
   attachment: { flex: 1, height: 56, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', backgroundColor: C.surface === '#101012' ? '#FFFFFF08' : '#1010120D', borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   section: { borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', borderRadius: 20, padding: 20 },
-  sectionTitle: { fontFamily: 'RobotoMedium', fontSize: 14, lineHeight: 17 },
-  sectionHeader: { height: 48, marginTop: -4, marginLeft: -6, marginRight: -12, marginBottom: 15 },
+  sectionTitle: { fontFamily: Fonts.medium, fontSize: 14, lineHeight: 17 },
+  sectionHeader: { height: 48, marginTop: -5, marginLeft: -6, marginRight: -12.9, marginBottom: 16 }  ,
   sectionFooter: { flexDirection: 'row', alignItems: 'center', height: 48, marginTop: 21, marginBottom: -5, marginHorizontal: -5 },
   circleTarget: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   disc: { position: 'absolute', width: 40, height: 40, borderRadius: 999 },
   instrumentalTarget: { height: 48, justifyContent: 'center', marginLeft: 8 },
-  instrumental: { flexDirection: 'row', alignItems: 'center', gap: 2, height: 40, paddingLeft: 14, paddingRight: 12, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', borderRadius: 999 },
+  instrumental: { flexDirection: 'row', alignItems: 'center', gap: 2, height: 40, paddingLeft: 13.1, paddingRight: 11.5, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', borderRadius: 999 },
   suggestionTarget: { height: 48, justifyContent: 'center' },
   suggestion: { borderRadius: 999, backgroundColor: C.surface === '#101012' ? C.control : '#1010120F', height: 40, paddingHorizontal: 16, justifyContent: 'center' },
   summary: { color: C.muted, fontSize: 14 },
   titleInput: { gap: 2, borderRadius: 20, height: 48, paddingLeft: 21, paddingRight: 16, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A' },
   createRow: { margin: 16, marginBottom: 8.1, flexDirection: 'row', gap: 8 },
   create: { height: 56, borderRadius: 999, flexDirection: 'row', gap: 6, justifyContent: 'center', alignItems: 'center' },
-  createText: { color: C.white, fontFamily: 'RobotoMedium', fontSize: 18.5, lineHeight: 22, letterSpacing: 0.14 },
+  createText: { color: C.white, fontFamily: Fonts.medium, fontSize: 18.5, lineHeight: 22, letterSpacing: 0.14 },
   clear: { width: 56, height: 56, borderRadius: 999, backgroundColor: C.surface === '#101012' ? C.control : '#10101230' },
   library: { flex: 1, backgroundColor: C.surface, padding: 24 },
   fileNote: { flexDirection: 'row', gap: 8, alignItems: 'center', marginHorizontal: 20, marginTop: 8 },

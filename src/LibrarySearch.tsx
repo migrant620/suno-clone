@@ -5,7 +5,10 @@ import { AudioTrack } from './audioData';
 import { useLibrary } from './useLibrary';
 import { useLibraryPlayback } from './useLibraryPlayback';
 import { SongRow } from './SongRow';
-import { ChevronLeft, Search as SearchIcon, X } from 'lucide-react-native';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import SearchIcon from 'lucide-react-native/icons/search';
+import X from 'lucide-react-native/icons/x';
+import { Fonts } from './fonts';
 
 export function LibrarySearch({ library, player, onSongOptions, onBack }: {
   library: ReturnType<typeof useLibrary>; player: ReturnType<typeof useLibraryPlayback>;
@@ -45,7 +48,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   backTarget: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   backCircle: { width: 40, height: 40, borderRadius: 99, backgroundColor: C.field, alignItems: 'center', justifyContent: 'center' },
   search: { flex: 1, height: 48, paddingHorizontal: 8, borderRadius: 99, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.field },
-  input: { flex: 1, minWidth: 0, height: 48, padding: 0, fontFamily: 'RobotoRegular', fontSize: 16, lineHeight: 20, color: C.ink, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  input: { flex: 1, minWidth: 0, height: 48, padding: 0, fontFamily: Fonts.regular, fontSize: 16, lineHeight: 20, color: C.ink, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   searchIcon: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   clear: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }, results: { paddingBottom: 24 },
 });

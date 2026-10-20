@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSession } from './LocalSession';
 import { ThemeColors, useTheme } from './Theme';
 import { Label } from './ui';
+import { Fonts } from './fonts';
 
 export function DeleteAccountDialog({ onClose }: { onClose: () => void }) {
   const theme = useTheme(); const C = theme.colors; const S = styles(C); const session = useLocalSession();
@@ -26,7 +27,7 @@ export function DeleteAccountDialog({ onClose }: { onClose: () => void }) {
 }
 const styles = (C: ThemeColors) => StyleSheet.create({
   overlay: { flex: 1, backgroundColor: '#00000052' }, center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
-  card: { width: 272, maxWidth: '100%', padding: 24, borderRadius: 28, backgroundColor: C.surface === '#101012' ? '#2E2E33' : C.surface }, title: { fontFamily: 'InstrumentSerif', fontSize: 28, lineHeight: 32, color: C.ink },
-  description: { fontSize: 16, lineHeight: 32, color: C.secondary, marginTop: 16 }, input: { height: 64, backgroundColor: C.surface === '#101012' ? '#38383E' : '#FFFFFF', borderTopLeftRadius: 4, borderTopRightRadius: 4, borderBottomWidth: 1, borderBottomColor: C.secondary, marginTop: 16, padding: 12, color: C.ink, fontFamily: 'RobotoRegular', fontSize: 16, lineHeight: 24, textAlignVertical: 'center' },
+  card: { width: 272, maxWidth: '100%', padding: 24, borderRadius: 28, backgroundColor: C.surface === '#101012' ? '#2E2E33' : C.surface }, title: { fontFamily: Fonts.serif, fontSize: 28, lineHeight: 32, color: C.ink },
+  description: { fontSize: 16, lineHeight: 32, color: C.secondary, marginTop: 16 }, input: { height: 64, backgroundColor: C.surface === '#101012' ? '#38383E' : '#FFFFFF', borderTopLeftRadius: 4, borderTopRightRadius: 4, borderBottomWidth: 1, borderBottomColor: C.secondary, marginTop: 16, padding: 12, color: C.ink, fontFamily: Fonts.regular, fontSize: 16, lineHeight: 24, textAlignVertical: 'center' },
   actions: { marginTop: 24, minHeight: 48, flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }, button: { minHeight: 48, paddingHorizontal: 12, justifyContent: 'center' }, buttonText: { fontSize: 24, lineHeight: 32, color: C.ink }, error: { color: C.surface === '#101012' ? '#FFB1A3' : '#B52B19', fontSize: 12, lineHeight: 18, marginTop: 12 }, disclosure: { position: 'absolute', left: 8, right: 8, bottom: -30, fontSize: 11, lineHeight: 16, textAlign: 'center', color: C.ink },
 });
