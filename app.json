@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Suno UI Prototype",
-    "slug": "suno-ui",
-    "scheme": "suno-ui",
+    "slug": "suno-clone",
+    "scheme": "suno-clone",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",

@@ -2,14 +2,14 @@
   <a href="https://migrant620.github.io/suno/"><img src="docs/demo.gif" width="280" alt="Typing a song description, opening Morning Light in the full player while it plays, then visiting the Library"></a>
 </p>
 
-<h1 align="center">Suno UI</h1>
+<h1 align="center">Suno Clone</h1>
 
 <p align="center">
   <a href="https://migrant620.github.io/suno/"><img src="https://img.shields.io/badge/%E2%96%B6%20Live%20demo-migrant620.github.io%2Fsuno-FF399C?style=for-the-badge" alt="Live demo"></a>
 </p>
 
 <p align="center">
-  A high-fidelity, interactive recreation of Suno's mobile interface — real forms, real playback, running in your browser.<br>
+  A Suno clone in React Native + Expo: a high-fidelity, interactive recreation of Suno's mobile interface — real forms, real playback, running in your browser.<br>
   <a href="DESIGN.md">DESIGN.md</a> · <a href="#design-notes">Design notes</a> · <a href="#explore-the-prototype">Explore</a> · <a href="#run-locally">Run locally</a> · <a href="#scope-and-limitations">Scope</a> · <a href="https://github.com/migrant620/awesome-app-design-md">More apps →</a>
 </p>
 
@@ -87,7 +87,7 @@ The static output is written to `dist/`. Serve that directory over HTTP or HTTPS
 
 ## Demo build
 
-The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-10-20 (GitHub Pages commit `0dd8495e`, source revision `b2a31384`).
+The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-10-20 (GitHub Pages commit `0dd8495e`, source revision `49b20d99`).
 
 ## Scope and limitations
 
@@ -99,7 +99,7 @@ The published demo at <https://migrant620.github.io/suno/> is built from this re
 
 ## Commission a prototype
 
-Have an app whose screens you want to put in front of your team, a client or investors? I recreate chosen app interfaces and flows as high-fidelity, interactive prototypes and hand over the source code. [Open an issue](https://github.com/migrant620/suno-ui/issues/new?title=Prototype%20enquiry) with the app, the flow you need and your timeline.
+Have an app whose screens you want to put in front of your team, a client or investors? I recreate chosen app interfaces and flows as high-fidelity, interactive prototypes and hand over the source code. [Open an issue](https://github.com/migrant620/suno-clone/issues/new?title=Prototype%20enquiry) with the app, the flow you need and your timeline.
 
 ## License
 
