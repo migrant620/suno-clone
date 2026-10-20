@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Label } from './ui';
 import accountStorage, { ACCOUNT_CONTROL, SESSION_KEY, accountEpoch, beginAccountDeletion, bindAccount, finishAccountDeletion, openLocalAccount, readAccountState } from './accountStorage';
+import { Fonts } from './fonts';
 type Session = { leave: () => Promise<void>; deleteAccount: () => Promise<void> };
 const unavailable = async () => { throw new Error('Session unavailable'); };
 const Context = createContext<Session>({ leave: unavailable, deleteAccount: unavailable });
@@ -73,4 +74,4 @@ export function LocalSession({ children }: { children: React.ReactNode }) {
     </>}{!!error && <Label accessibilityRole="alert" style={S.error}>{error}</Label>}<Label style={S.local}>Local demo · No Suno account login</Label>
   </View></SafeAreaView>;
 }
-const S = StyleSheet.create({ page: { flex: 1, backgroundColor: '#101012', justifyContent: 'center', alignItems: 'center' }, content: { width: '100%', maxWidth: 480, padding: 28, alignItems: 'center', gap: 24 }, brand: { fontFamily: 'InstrumentSerif', color: '#F7F4EF', fontSize: 72, lineHeight: 84 }, title: { fontSize: 32, lineHeight: 40, color: '#F7F4EF', textAlign: 'center' }, description: { color: '#C7C6CD', lineHeight: 24, textAlign: 'center' }, button: { backgroundColor: '#F7F4EF', minHeight: 52, borderRadius: 99, paddingHorizontal: 28, justifyContent: 'center' }, buttonText: { color: '#101012', fontFamily: 'RobotoMedium' }, error: { color: '#FFB1A3', lineHeight: 22 }, local: { color: '#96959D', fontSize: 12, textAlign: 'center' } });
+const S = StyleSheet.create({ page: { flex: 1, backgroundColor: '#101012', justifyContent: 'center', alignItems: 'center' }, content: { width: '100%', maxWidth: 480, padding: 28, alignItems: 'center', gap: 24 }, brand: { fontFamily: Fonts.serif, color: '#F7F4EF', fontSize: 72, lineHeight: 84 }, title: { fontSize: 32, lineHeight: 40, color: '#F7F4EF', textAlign: 'center' }, description: { color: '#C7C6CD', lineHeight: 24, textAlign: 'center' }, button: { backgroundColor: '#F7F4EF', minHeight: 52, borderRadius: 99, paddingHorizontal: 28, justifyContent: 'center' }, buttonText: { color: '#101012', fontFamily: Fonts.medium }, error: { color: '#FFB1A3', lineHeight: 22 }, local: { color: '#96959D', fontSize: 12, textAlign: 'center' } });

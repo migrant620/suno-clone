@@ -15,6 +15,7 @@ import { PlaylistEditor } from './PlaylistEditor';
 import { PlaylistForm } from './PlaylistForm';
 import { AudioTrack, exampleTracks } from './audioData';
 import { useLibrary } from './useLibrary';
+import { Fonts } from './fonts';
 
 export type LibraryRoute = 'home' | 'liked' | 'playlists' | 'search' | 'shared' | `playlist:${string}`;
 const likedArt = require('../assets/liked-texture.png');
@@ -71,12 +72,12 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
         <View style={view === 'grid' ? { padding: 4, paddingTop: 8 } : { flex: 1 }}><Label style={{ fontSize: 14 }} numberOfLines={2}>{p.name}</Label>{p.id !== 'new' && p.id !== 'liked' && <Label style={L.metadata}>Demo listener</Label>}</View>
       </Pressable>)}</ScrollView> : <View style={L.center}><Label style={{ color: C.disabled }}>No playlists saved yet</Label></View>}
     </> : <>
-      <View style={L.header}><Label style={[L.title, { letterSpacing: 1.04, marginTop: -1.2 }]}>Library</Label><View style={{ flex: 1 }} /><IconButton name="magnify" label="Search" onPress={() => { setQuery(''); onRoute('search'); }} circle={C.field} style={{ marginTop: -8 }} /></View>
+      <View style={L.header}><Label style={[L.title, L.pageTitle]}>Library</Label><View style={{ flex: 1 }} /><IconButton name="magnify" label="Search" onPress={() => { setQuery(''); onRoute('search'); }} circle={C.field} style={{ marginTop: -8 }} /></View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={L.categories}>
         <Pressable accessibilityRole="button" accessibilityLabel="Liked" onPress={() => openLiked('home')} style={L.category}><Image source={likedArt} style={L.categoryImage} /><View style={L.categoryIcon}><Icon name="thumb-up" size={56} color="#B8DEEF" /></View><Label style={L.categoryTitle}>Liked</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Playlists" onPress={() => onRoute('playlists')} style={L.category}><Image source={require('../assets/playlists-cover.png')} style={L.categoryImage} /><Label style={L.categoryTitle}>Playlists</Label></Pressable>
       </ScrollView>
-      {library.songs.length ? <ScrollView contentContainerStyle={{ paddingTop: 20, paddingBottom: 24 }}><Label style={[L.title, { fontSize: 20, paddingHorizontal: 16, marginBottom: 12 }]}>Your songs</Label>{library.songs.map(track => <SongRow key={track.id} track={track} playing={player.track?.id === track.id && player.status.playing} onPress={() => void player.playTrack(track, library.songs, 'library')} onOptions={() => setSongActions(track)} />)}<Label style={{ fontSize: 11, color: C.muted, padding: 16 }}>Local examples use prerecorded audio.</Label></ScrollView> : <><View style={L.emptyMain}><Image source={C.surface === '#101012' ? require('../assets/library-empty-dark.png') : require('../assets/library-empty.png')} style={{ width: 211, height: 180 }} /><Label style={[L.title, { marginTop: 17, textAlign: 'center', fontFamily: 'RobotoRegular', letterSpacing: 0.18 }]}>No songs to show!</Label></View>
+      {library.songs.length ? <ScrollView contentContainerStyle={{ paddingTop: 20, paddingBottom: 24 }}><Label style={[L.title, { fontSize: 20, paddingHorizontal: 16, marginBottom: 12 }]}>Your songs</Label>{library.songs.map(track => <SongRow key={track.id} track={track} playing={player.track?.id === track.id && player.status.playing} onPress={() => void player.playTrack(track, library.songs, 'library')} onOptions={() => setSongActions(track)} />)}<Label style={{ fontSize: 11, color: C.muted, padding: 16 }}>Local examples use prerecorded audio.</Label></ScrollView> : <><View style={L.emptyMain}><Image source={C.surface === '#101012' ? require('../assets/library-empty-dark.png') : require('../assets/library-empty.png')} style={{ width: 211, height: 180 }} /><Label style={[L.title, { marginTop: 17, textAlign: 'center', fontFamily: Fonts.regular, letterSpacing: 0.18 }]}>No songs to show!</Label></View>
       <View style={L.tip}><Label style={L.tipText}>Create your first hit from</Label><View style={[S.row, { justifyContent: 'center' }]}><Label style={L.tipText}>the </Label><Icon name="music-note-plus" size={18} color={C.muted} /><Label style={L.tipText}> button below</Label></View><Icon name="arrow-down-bold" size={40} color="#AA5290" /></View></>}
     </>}
     {!!library.error && <Label style={{ padding: 12, color: '#B52B19' }}>{library.error}</Label>}
@@ -97,7 +98,8 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
 const styles = (C: ThemeColors) => StyleSheet.create({
   page: { flex: 1, backgroundColor: C.surface },
   header: { height: 76, flexDirection: 'row', alignItems: 'flex-start', padding: 16 },
-  title: { fontFamily: 'RobotoBold', fontSize: 28, lineHeight: 34, color: C.surface === '#101012' ? C.ink : '#1C1C1F' },
+  pageTitle: { fontFamily: Fonts.display, fontSize: 26.1, letterSpacing: 1.65, marginTop: -1.2 },
+  title: { fontFamily: Fonts.bold, fontSize: 28, lineHeight: 34, color: C.surface === '#101012' ? C.ink : '#1C1C1F' },
   headerAction: { marginTop: -4, width: 40, height: 40, borderRadius: 99, backgroundColor: C.field },
   categories: { flexDirection: 'row', gap: 12, paddingHorizontal: 16 },
   category: { width: 164, height: 124, borderRadius: 16, overflow: 'hidden' },
@@ -124,7 +126,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   searchHeader: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, paddingTop: 8, height: 64 },
   searchBox: { flex: 1, paddingHorizontal: 12, borderRadius: 8, height: 48, flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface === '#101012' ? C.control : '#10101206', gap: 8 },
-  searchInput: { flex: 1, fontFamily: 'RobotoRegular', fontSize: 16, color: C.ink, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  searchInput: { flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: C.ink, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   menu: { position: 'absolute', top: 72, right: 16, backgroundColor: C.toolbar, borderRadius: 20, width: 220, paddingVertical: 12, boxShadow: '0px 3px 8px #00000022' },
   menuRow: { height: 48, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 16 },
 });

@@ -5,6 +5,7 @@ import { Action, Draft, EditorKind, SavedText } from './state';
 import { Accent, C, Icon, IconButton, Label, S, Sheet } from './ui';
 
 import { useEnhancement } from './Enhancement';
+import { Fonts } from './fonts';
 
 type Naming = { type: 'save' } | { type: 'rename'; item: SavedText };
 export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }: {
@@ -85,7 +86,7 @@ export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }:
         {(['Simple', 'Advanced'] as const).map(value => (
           <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: state.mode === value }} aria-checked={state.mode === value}
             accessibilityLabel={`${value} editor mode`} onPress={() => { if (state.mode !== value) dispatch({ type: 'mode' }); }} style={[E.modeOption, state.mode === value && { backgroundColor: C.surface }]}>
-            <Label style={[E.modeLabel, state.mode === value && { color: C.ink, fontFamily: 'RobotoMedium' }]}>{value}</Label>
+            <Label style={[E.modeLabel, state.mode === value && { color: C.ink, fontFamily: Fonts.medium }]}>{value}</Label>
           </Pressable>
         ))}
       </View>
@@ -145,13 +146,13 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   title: { marginHorizontal: 16, marginTop: 12, marginBottom: 8 },
   modeToggle: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: C.toolbar, borderRadius: 12, padding: 4, gap: 4 },
   modeOption: { flex: 1, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 9 },
-  modeLabel: { fontSize: 14, color: C.muted, fontFamily: 'RobotoRegular' },
-  input: { flex: 1, marginHorizontal: 16, marginBottom: 20, fontFamily: 'RobotoRegular', color: C.ink, fontSize: 16, lineHeight: 20, padding: 0, paddingTop: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}), includeFontPadding: false },
+  modeLabel: { fontSize: 14, color: C.muted, fontFamily: Fonts.regular },
+  input: { flex: 1, marginHorizontal: 16, marginBottom: 20, fontFamily: Fonts.regular, color: C.ink, fontSize: 16, lineHeight: 20, padding: 0, paddingTop: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}), includeFontPadding: false },
   footer: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingLeft: 16, paddingRight: 14, gap: 7 },
   toolbar: { backgroundColor: C.toolbar, flex: 1, height: 48, borderRadius: 24, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, boxShadow: '0px 4px 5px rgba(0,0,0,0.18)' },
   tool: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center' },
   done: { width: 40, height: 40, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
-  listTitle: { textAlign: 'center', fontFamily: 'RobotoMedium', marginBottom: 24 },
+  listTitle: { textAlign: 'center', fontFamily: Fonts.medium, marginBottom: 24 },
   list: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 80 },
   empty: { color: C.muted, textAlign: 'center' },
   savedRow: { flexDirection: 'row', alignItems: 'center', minHeight: 72, zIndex: 1 },
@@ -162,10 +163,10 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   menuItem: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, paddingHorizontal: 16 },
   dialogOuter: { flex: 1, backgroundColor: '#00000055', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 36 },
   dialog: { width: '100%', maxWidth: 360, padding: 24, borderRadius: 24, backgroundColor: C.toolbar },
-  dialogTitle: { textAlign: 'center', fontFamily: 'RobotoMedium', marginBottom: 16 },
+  dialogTitle: { textAlign: 'center', fontFamily: Fonts.medium, marginBottom: 16 },
   dialogDescription: { color: C.muted, textAlign: 'center', marginBottom: 20, lineHeight: 24 },
-  dialogError: { color: C.primary, textAlign: 'center', fontFamily: 'RobotoMedium', fontSize: 13, lineHeight: 18, marginBottom: 12 },
-  nameInput: { backgroundColor: C.surface === '#101012' ? C.control : '#10101208', borderRadius: 16, padding: 16, fontSize: 16, fontFamily: 'RobotoRegular', color: C.ink, height: 56 },
+  dialogError: { color: C.primary, textAlign: 'center', fontFamily: Fonts.medium, fontSize: 13, lineHeight: 18, marginBottom: 12 },
+  nameInput: { backgroundColor: C.surface === '#101012' ? C.control : '#10101208', borderRadius: 16, padding: 16, fontSize: 16, fontFamily: Fonts.regular, color: C.ink, height: 56 },
   dialogButtons: { flexDirection: 'row', gap: 12, marginTop: 16 },
   cancel: { flex: 1, borderRadius: 999, minHeight: 56, backgroundColor: C.surface === '#101012' ? C.control : '#10101208', justifyContent: 'center', alignItems: 'center' },
   save: { flex: 1, borderRadius: 999, minHeight: 56, backgroundColor: C.ink, justifyContent: 'center', alignItems: 'center' },

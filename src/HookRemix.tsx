@@ -5,6 +5,7 @@ import { CoverBackdrop } from './CoverBackdrop';
 import { ExampleCreation } from './ExampleCreation';
 import { useLibrary } from './useLibrary';
 import { Accent, Icon, Label, Sheet } from './ui';
+import { Fonts } from './fonts';
 
 export function HookRemix({ track, library, onClose, onAdvanced, onCreated }: { track: AudioTrack; library: ReturnType<typeof useLibrary>; onClose: () => void; onAdvanced: (track: AudioTrack, isActive: () => boolean) => Promise<boolean>; onCreated: (track: AudioTrack) => void }) {
   const [prompt, setPrompt] = useState(''); const [styles, setStyles] = useState(track.styles.split(',').map(value => value.trim()).filter(Boolean));
@@ -71,9 +72,9 @@ const S = StyleSheet.create({
   chipTarget: { height: 48, justifyContent: 'center' },
   advanced: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#FFFFFF1A', borderRadius: 99, paddingHorizontal: 15, height: 40 },
   chip: { borderWidth: 1, borderColor: 'transparent', backgroundColor: '#FFFFFF0A', borderRadius: 99, paddingHorizontal: 15, height: 40, justifyContent: 'center' },
-  chipText: { color: '#FFFFFF', fontFamily: 'RobotoMedium', fontSize: 12.5, lineHeight: 15 },
+  chipText: { color: '#FFFFFF', fontFamily: Fonts.medium, fontSize: 12.5, lineHeight: 15 },
   inputRow: { marginHorizontal: 16, borderWidth: 1, borderColor: '#FFFFFF1A', borderRadius: 99, height: 56, paddingRight: 3, paddingLeft: 16, flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, minWidth: 0, color: '#FFFFFF', fontFamily: 'RobotoRegular', fontSize: 16, height: 40, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  input: { flex: 1, minWidth: 0, color: '#FFFFFF', fontFamily: Fonts.regular, fontSize: 16, height: 40, padding: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   createTarget: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
   create: { width: 40, height: 40, borderRadius: 99, justifyContent: 'center', alignItems: 'center' },
 });

@@ -4,6 +4,7 @@ import { BackHandler, Image, Keyboard, Platform, Pressable, ScrollView, StyleShe
 import * as ImagePicker from 'expo-image-picker';
 import { Playlist } from './libraryState';
 import { C, IconButton, Label, S } from './ui';
+import { Fonts } from './fonts';
 
 export function PlaylistEditor({ item, onClose, onSave }: { item: Playlist; onClose: () => void; onSave: (item: Playlist) => void }) {
   const C = useSurfaceColors(); const E = styles(C);
@@ -39,11 +40,11 @@ export function PlaylistEditor({ item, onClose, onSave }: { item: Playlist; onCl
 const styles = (C: ThemeColors) => StyleSheet.create({
   header: { height: 76, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingHorizontal: 8, paddingTop: 16 },
   back: { width: 40, height: 40, borderRadius: 99, backgroundColor: C.surface === '#101012' ? C.control : '#10101206' },
-  heading: { fontFamily: 'RobotoMedium', fontSize: 18, lineHeight: 24, paddingTop: 7, flexShrink: 1 },
+  heading: { fontFamily: Fonts.medium, fontSize: 18, lineHeight: 24, paddingTop: 7, flexShrink: 1 },
   save: { height: 40, width: 80, backgroundColor: '#FFFFFF44', borderRadius: 99, justifyContent: 'center', alignItems: 'center' },
   cover: { width: 172, height: 172, borderRadius: 20, overflow: 'hidden', alignSelf: 'center', marginBottom: 12, justifyContent: 'flex-end', alignItems: 'center', padding: 8 },
   edit: { borderRadius: 99, backgroundColor: '#FFFFFF77', paddingHorizontal: 12, height: 32, justifyContent: 'center' },
-  input: { fontFamily: 'RobotoRegular', fontSize: 14, color: C.ink, backgroundColor: C.surface === '#101012' ? C.field : '#10101205', borderRadius: 12, padding: 16, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  input: { fontFamily: Fonts.regular, fontSize: 14, color: C.ink, backgroundColor: C.surface === '#101012' ? C.field : '#10101205', borderRadius: 12, padding: 16, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   description: { height: 130, backgroundColor: C.surface === '#101012' ? C.field : '#10101205', borderRadius: 12, padding: 12 },
   visibility: { padding: 16, backgroundColor: C.surface === '#101012' ? C.field : '#10101205', borderRadius: 12, gap: 16 },
 });

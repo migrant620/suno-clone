@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { exampleTracks } from './audioData';
 import { C, Icon, Label, Sheet } from './ui';
+import { Fonts } from './fonts';
 
 export function ExampleCreation({ title, ready, voiceName, mediaName, onClose, onCreate }: { title: string; ready: boolean; voiceName?: string; mediaName?: string; onClose: () => void; onCreate: (template: string, isActive: () => boolean) => Promise<void> }) {
   const [selected, setSelected] = useState(exampleTracks[0].id);
@@ -35,4 +36,4 @@ export function ExampleCreation({ title, ready, voiceName, mediaName, onClose, o
     </ScrollView>
   </Sheet>;
 }
-const S = StyleSheet.create({ content: { padding: 20, gap: 16 }, title: { fontSize: 24, lineHeight: 30, fontFamily: 'RobotoMedium' }, description: { fontSize: 14, lineHeight: 21, color: C.muted }, songTitle: { fontSize: 18, lineHeight: 24 }, option: { borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }, cover: { width: 48, height: 48, borderRadius: 8 }, caption: { fontSize: 12, lineHeight: 17, color: C.muted }, create: { height: 56, borderRadius: 99, backgroundColor: C.ink, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }, createText: { color: C.white, fontFamily: 'RobotoMedium', fontSize: 18 } });
+const S = StyleSheet.create({ content: { padding: 20, gap: 16 }, title: { fontSize: 24, lineHeight: 30, fontFamily: Fonts.medium }, description: { fontSize: 14, lineHeight: 21, color: C.muted }, songTitle: { fontSize: 18, lineHeight: 24 }, option: { borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }, cover: { width: 48, height: 48, borderRadius: 8 }, caption: { fontSize: 12, lineHeight: 17, color: C.muted }, create: { height: 56, borderRadius: 99, backgroundColor: C.ink, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10 }, createText: { color: C.white, fontFamily: Fonts.medium, fontSize: 18 } });

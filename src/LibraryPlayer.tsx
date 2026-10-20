@@ -14,6 +14,7 @@ import { SongReport } from './SongReport';
 import { useCommunity } from './useCommunity';
 import { useLocalProfile } from './useLocalProfile';
 import { C, Icon, IconButton, IconName, Label } from './ui';
+import { Fonts } from './fonts';
 
 export function LibraryPlayer({ player, library, community, author, account, onClose, onReuse }: {
   player: ReturnType<typeof useLibraryPlayback>; library: ReturnType<typeof useLibrary>;
@@ -98,11 +99,11 @@ const P = StyleSheet.create({
   handle: { width: 32, height: 4, borderRadius: 2, backgroundColor: '#FFFFFF66' },
   cover: { width: 280, height: 280, maxWidth: '80%', aspectRatio: 1, alignSelf: 'center', marginTop: 98, marginBottom: 80, borderRadius: 16 },
   songHeader: { paddingLeft: 20, paddingRight: 0, minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: C.surface, fontFamily: 'RobotoBold', fontSize: 18, lineHeight: 26 },
+  title: { color: C.surface, fontFamily: Fonts.bold, fontSize: 18, lineHeight: 26 },
   artist: { color: '#F7F4EF99', fontSize: 14, marginTop: 4 },
   actions: { gap: 8, paddingHorizontal: 20, paddingTop: 17 },
   action: { height: 48, paddingLeft: 16, paddingRight: 16, borderRadius: 99, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFFFF08' }, actionIcon: { width: 24, height: 24 },
-  actionText: { color: C.surface, fontSize: 14, fontFamily: 'RobotoMedium' },
+  actionText: { color: C.surface, fontSize: 14, fontFamily: Fonts.medium },
   timeline: { marginHorizontal: 16, marginTop: 16 },
   seekTouch: { height: 24, justifyContent: 'center' },
   seekBar: { height: 8, borderRadius: 8, overflow: 'hidden', backgroundColor: '#FFFFFF33' },
@@ -115,10 +116,10 @@ const P = StyleSheet.create({
   avatar: { width: 36, height: 36, borderRadius: 99 },
   follow: { minHeight: 32, paddingHorizontal: 16, borderRadius: 99, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   followActive: { backgroundColor: '#FFFFFF22', borderWidth: 1, borderColor: '#FFFFFF66' },
-  followText: { color: '#17120F', fontFamily: 'RobotoBold', fontSize: 14, lineHeight: 20 },
+  followText: { color: '#17120F', fontFamily: Fonts.bold, fontSize: 14, lineHeight: 20 },
   authorName: { color: C.surface, fontSize: 16 },
   secondary: { color: '#F7F4EF88', fontSize: 12 },
-  cardTitle: { fontFamily: 'RobotoBold', fontSize: 14, color: C.surface },
+  cardTitle: { fontFamily: Fonts.bold, fontSize: 14, color: C.surface },
   body: { color: C.surface, fontSize: 14, lineHeight: 20, marginTop: 16 },
   smallAction: { width: 36, height: 36, marginLeft: 8, borderRadius: 99, backgroundColor: '#FFFFFF08' },
   more: { marginTop: 12, paddingTop: 16, borderTopWidth: 1, borderColor: '#FFFFFF22', alignItems: 'center' },

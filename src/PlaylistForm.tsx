@@ -2,6 +2,7 @@ import { ThemeColors, useSurfaceColors } from './Theme';
 import React, { useRef, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Switch, TextInput, View, useWindowDimensions } from 'react-native';
 import { C, IconButton, Label, S } from './ui';
+import { Fonts } from './fonts';
 
 export function PlaylistForm({ initialName = '', initialPublic = false, editing = false, onClose, onSave }: {
   initialName?: string; initialPublic?: boolean; editing?: boolean;
@@ -33,14 +34,14 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   outer: { flex: 1, backgroundColor: '#00000055', alignItems: 'center', paddingTop: Platform.OS === 'web' ? 47 : 96 },
   sheet: { flex: 1, backgroundColor: C.surface === '#101012' ? C.field : '#EEEBE5', borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden' },
   header: { height: 64, alignItems: 'center', paddingTop: 20 },
-  heading: { fontFamily: 'RobotoMedium', fontSize: 20, lineHeight: 26 },
+  heading: { fontFamily: Fonts.medium, fontSize: 20, lineHeight: 26 },
   close: { position: 'absolute', right: 16, top: 8 },
   nameArea: { flex: 1, justifyContent: 'center', paddingHorizontal: 16 },
-  name: { height: 148, padding: 16, fontFamily: 'RobotoRegular', fontSize: 28, lineHeight: 34, color: C.ink, textAlign: 'center', textAlignVertical: 'top', ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  name: { height: 148, padding: 16, fontFamily: Fonts.regular, fontSize: 28, lineHeight: 34, color: C.ink, textAlign: 'center', textAlignVertical: 'top', ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   footer: { padding: 16, gap: 16 },
   visibility: { justifyContent: 'center', gap: 12, minHeight: 38 },
   visibilityText: { color: C.secondary, fontSize: 14, flexShrink: 1 },
   disclosure: { fontSize: 12, color: C.muted, textAlign: 'center' },
   submit: { height: 56, borderRadius: 99, backgroundColor: C.ink, justifyContent: 'center', alignItems: 'center' },
-  submitText: { fontSize: 18, lineHeight: 24, fontFamily: 'RobotoMedium', color: C.surface },
+  submitText: { fontSize: 18, lineHeight: 24, fontFamily: Fonts.medium, color: C.surface },
 });

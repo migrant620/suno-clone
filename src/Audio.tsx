@@ -5,6 +5,7 @@ import { usePlayback } from './usePlayback';
 import { useSheetEscape } from './useSheetEscape';
 import { AudioTrack, clockTime, exampleTracks } from './audioData';
 import { C, Icon, IconButton, Label, S, Sheet } from './ui';
+import { Fonts } from './fonts';
 
 export function AudioConfirm({ title, description, confirm, cancel, onConfirm, onCancel, destructive = false, busy = false }: {
   title: string; description: string; confirm: string; cancel: string; onConfirm: () => void; onCancel: () => void; destructive?: boolean; busy?: boolean;
@@ -154,10 +155,10 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   previewButton: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
   previewCover: { width: 48, height: 48, borderRadius: 99 },
   continue: { width: 48, height: 48, backgroundColor: C.ink, borderRadius: 99 },
-  pickerTitle: { fontFamily: 'RobotoMedium', fontSize: 16, lineHeight: 20, letterSpacing: 0.15, textAlign: 'center', marginBottom: 14 },
+  pickerTitle: { fontFamily: Fonts.medium, fontSize: 16, lineHeight: 20, letterSpacing: 0.15, textAlign: 'center', marginBottom: 14 },
   search: { marginHorizontal: 16, borderRadius: 8, height: 46, backgroundColor: C.surface === '#101012' ? C.control : '#1010120A', flexDirection: 'row', alignItems: 'center' },
   searchIcon: { position: 'absolute', left: 8, top: 11 },
-  searchInput: { flex: 1, fontSize: 16, fontFamily: 'RobotoRegular', color: C.ink, height: 46, padding: 0, paddingLeft: 36, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
+  searchInput: { flex: 1, fontSize: 16, fontFamily: Fonts.regular, color: C.ink, height: 46, padding: 0, paddingLeft: 36, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: C.surface === '#101012' ? '#FFFFFF26' : '#7D7C83' },
   tab: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
   filters: { flexDirection: 'row', paddingHorizontal: 16, paddingTop: 2.8, gap: 8 } ,
