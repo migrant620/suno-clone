@@ -1,11 +1,12 @@
 import { ThemeColors, useSurfaceColors } from './Theme';
 import React from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { AudioTrack, clockTime } from './audioData';
 import { C, Icon, IconButton, Label } from './ui';
 
-function SongRowImpl({ track, playing, onPress, onOptions, variant }: {
+function SongRowImpl({ track, playing, onPress, onOptions, variant, downloadPending }: {
   track: AudioTrack; playing: boolean; onPress: () => void; onOptions: () => void; variant?: 'search';
+  downloadPending?: boolean;
 }) {
   const C = useSurfaceColors(); const R = styles(C);
   return <View style={[R.row, variant === 'search' && { minHeight: 76 }]}>
@@ -15,7 +16,7 @@ function SongRowImpl({ track, playing, onPress, onOptions, variant }: {
       </View>
       <View style={{ flex: 1 }}>
         <View style={R.titleRow}>{playing && <Icon name="waveform" size={14} color={C.primary} />}<Label numberOfLines={1} style={[R.title, playing && { color: C.primary }]}>{track.title}</Label>{!!track.model && <Label style={R.model}>{track.model}</Label>}</View>
-        <View style={R.titleRow}><Icon name="play" size={14} color={C.muted} /><Label numberOfLines={1} style={R.metadata}>{track.plays || 0} · {track.artist || 'Your audio'}</Label></View>
+        <View style={R.titleRow}>{downloadPending && <View accessibilityRole="image" accessibilityLabel="Waiting to download" style={R.pending}><ActivityIndicator size="small" color={C.primary} style={R.pendingRing} /></View>}<Icon name="play" size={14} color={C.muted} /><Label numberOfLines={1} style={R.metadata}>{track.plays || 0} · {track.artist || 'Your audio'}</Label></View>
       </View>
     </Pressable>
     <IconButton name="dots-vertical" label={`Options for ${track.title}`} onPress={onOptions} size={24} style={{ width: 32, height: 48 }} />
@@ -31,6 +32,8 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   image: { width: 56, height: 56 },
   duration: { position: 'absolute', right: 4, bottom: 4, borderRadius: 99, paddingHorizontal: 4, color: C.white, backgroundColor: '#10101299', fontSize: 12, lineHeight: 18 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  pending: { width: 14.2, height: 14.2, marginRight: 1, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  pendingRing: { transform: [{ scale: 0.71 }] },
   title: { fontSize: 14, flexShrink: 1 },
   model: { fontSize: 10, color: '#96959B', marginLeft: 3 },
   metadata: { fontSize: 14, color: C.muted, flexShrink: 1 },

@@ -1,25 +1,17 @@
 import { useProfilePickerRecovery } from './useProfilePickerRecovery';
 import { reuseDraft } from './reuseDraft';
 import { useAttachmentCleanup } from './useAttachmentCleanup';
-import { HookPlayer } from './HookPlayer';
 import { exampleHooks, ExampleHook, decodeHook } from './hookData';
 import { useHookPreferences } from './useHookPreferences';
-import { InspirationRecorder } from './InspirationRecorder';
-import { HookCollection } from './HookCollection';
 import { HookCollectionId, hookCollection } from './hookCollections';
 import { MainNavigation } from './MainNavigation';
-import { PhotoToSong } from './PhotoToSong';
 import { CreateModelMenu } from './CreateModelMenu';
 import { ModelOffer } from './ModelOffer';
 import { CreateHeader } from './CreateHeader';
 import { useCreditPromotion } from './useCreditPromotion';
 import { LocalSession } from './LocalSession';
 import { ThemeProvider, ThemeColors, ThemedSurface, LightSurface, useTheme } from './Theme';
-import { SubscriptionFlow } from './SubscriptionFlow';
 import { useDemoEntitlements, MusicModel } from './useDemoEntitlements';
-import { AddToPlaylist } from './AddToPlaylist';
-import { Recorder } from './Recorder';
-import { Voice } from './Voice';
 import { PublicVoice, voiceById } from './voiceData';
 import { AddToSongMenu } from './AddToSongMenu';
 import { CreateOptions } from './CreateOptions';
@@ -28,31 +20,22 @@ import { useMediaDraft } from './useMediaDraft';
 import { readMediaFile, releaseMediaSource } from './mediaFiles';
 import { MediaKind } from './mediaTypes';
 import { useOwnVoices } from './useOwnVoices';
-import { VoiceDetails } from './VoiceDetails';
 import { VoiceAttachment } from './VoiceAttachment';
-import { Discovery } from './Discovery';
-import { Search, SearchPhase } from './Search';
+import type { SearchPhase } from './Search';
 import { useSearchHistory } from './useSearchHistory';
-import { CreatorProfile } from './CreatorProfile';
 import { ExampleCreator, creatorById, decodeSharedProfile, exampleCreators } from './creatorData';
-import { Profile } from './Profile';
-import { Notifications } from './Notifications';
 import { useNotificationAccess } from './useNotificationAccess';
 import { useLocalProfile } from './useLocalProfile';
 import { useCommunity } from './useCommunity';
-import { ExampleCreation } from './ExampleCreation';
-import { SongActions } from './SongActions';
-import { SongReport } from './SongReport';
-import { PlaylistShare } from './PlaylistShare';
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { AddToPlaylist, CreatorProfile, Discovery, ExampleCreation, HookCollection, HookPlayer, InspirationRecorder, Library, LibraryPlayer, Notifications, PhotoToSong, PlaylistShare, Profile, Recorder, Search, SongActions, SongReport, SubscriptionFlow, TextEditor, Voice, VoiceDetails, prefetchScreens } from './lazyScreens';
 import { ActivityIndicator, BackHandler, Image, Keyboard, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { Library, LibraryRoute } from './Library';
+import type { LibraryRoute } from './Library';
 import { useLibrary } from './useLibrary';
 import { useLibraryPlayback } from './useLibraryPlayback';
-import { LibraryPlayer } from './LibraryPlayer';
 import { LibraryMiniPlayer } from './LibraryMiniPlayer';
 import * as Linking from 'expo-linking';
 import { decodeSharedPlaylist } from './playlistSharing';
@@ -65,11 +48,11 @@ import { useEnhancement } from './Enhancement';
 import { AudioAttachment, AudioChip, AudioConfirm, SongPicker, useTrackPlayback } from './Audio';
 import { AudioTrack } from './audioData';
 import { useAudioDraft } from './useAudioDraft';
-import { TextEditor } from './TextEditor';
 import { Accent, C, Icon, IconButton, IconName, Label, Pill, S, Sheet } from './ui';
 import { Fonts, fontFiles, iconFontFiles } from './fonts';
 
 const DRAFT_KEY = 'suno-ui:local-draft:v1';
+const IDLE_CREATE_INK = '#A7A7A7';
 const FONT_GRACE_MS = 1200;
 const promptHints = {
   idle: ['A grungy drum n bass track', 'Euphoric festival song', 'An upbeat summer anthem', 'An acoustic love song', 'An epic orchestral score', 'A high-energy trap banger', 'A soulful R&B slow jam', 'A dark cinematic instrumental', 'A chill lo-fi study beat', 'A dreamy a cappella'],
@@ -91,6 +74,8 @@ export default React.memo(function App() {
     return () => clearTimeout(timer);
   }, [fontsLoaded, fontError, iconsLoaded, iconError]);
   const fontsSettled = ((fontsLoaded || !!fontError) && (iconsLoaded || !!iconError)) || fontGraceOver;
+  const facesDone = (fontsLoaded || !!fontError) && (iconsLoaded || !!iconError);
+  useEffect(() => { if (facesDone) prefetchScreens(); }, [facesDone]);
   return <View style={{ flex: 1 }}><SafeAreaProvider><ThemeProvider>
     <StatusBar style="dark" />
     {fontsSettled ? <LocalSession><CreationApp /></LocalSession> : <View style={{ flex: 1, backgroundColor: C.surface }} />}
@@ -341,7 +326,7 @@ function CreationApp() {
     <ThemedSurface><SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: tab === 'hooks' && !hookCollectionId && !hookCreator && !searchNotifications ? '#101012' : (tab === 'profile' || searchNotifications) ? theme.colors.surface : 'transparent' }}>
       <StatusBar style={(tab === 'hooks' && !hookCollectionId && !hookCreator && !searchNotifications) || theme.dark ? 'light' : 'dark'} />
       <View style={{ flex: 1 }}><View style={{ flex: 1 }} pointerEvents={searchNotifications ? 'none' : 'auto'} importantForAccessibility={searchNotifications ? 'no-hide-descendants' : 'auto'} aria-hidden={searchNotifications}>
-      {tab === 'create' ? <>
+      <Suspense fallback={null}>{tab === 'create' ? <>
         <CreateHeader modelOpen={overlay === 'model'} mode={state.mode} model={entitlements.data.model} freePlan={entitlements.ready && entitlements.data.plan === 'Free'} promotion={promotion} onMode={switchMode} onModel={() => { Keyboard.dismiss(); setOverlay('model'); }} onOffer={() => { Keyboard.dismiss(); promotion.start(); setOverlay('upgrade'); }} />
         {state.mode === 'Simple' ? <View style={A.simpleCard}>
           <View style={A.chips}>
@@ -367,13 +352,14 @@ function CreationApp() {
         </ScrollView>}
 
         <View style={[A.createRow, state.mode === 'Advanced' && { marginTop: 0 }]}>
-          <IconButton name="delete" label="Clear" size={19.5} glyphBox={24} disabled={mediaBusy} onPress={() => { if (hasDraft) void clearDraft(); }} style={A.clear} />
+          {hasDraft && <IconButton name="delete" label="Clear" size={19.5} glyphBox={24} disabled={mediaBusy} onPress={() => void clearDraft()} style={A.clear} />}
           <Pressable accessibilityRole="button" accessibilityLabel="Create" disabled={!canCreate} accessibilityState={{ disabled: !canCreate }} onPress={() => setOverlay('generation')} style={{ flex: 1 }}>
-            {canCreate ? <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent> : <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent>}
+            {canCreate ? <Accent style={A.create}><Icon name="music-note-plus" color={C.white} size={20} /><Label style={A.createText}>Create</Label></Accent>
+              : <View style={[A.create, A.createIdle]}><Icon name="music-note-plus" color={IDLE_CREATE_INK} size={20} /><Label style={[A.createText, { color: IDLE_CREATE_INK }]}>Create</Label></View>}
           </Pressable>
         </View>
-      </> : tab === 'hooks' ? hookCollectionId ? <LightSurface><HookCollection key={hookCollectionId} item={hookCollection(hookCollectionId)} library={library} player={libraryPlayer} onBack={() => setHookCollectionId(null)} onCreate={() => { setHookCollectionId(null); setTab('create'); }} onSongOptions={setGlobalSongOptions} /></LightSurface> : hookCreator ? <LightSurface><CreatorProfile scrollOffsets={hooksScroll} creator={currentHook?.creatorName ? { ...exampleCreators[0], id: currentHook.creatorId, name: currentHook.creatorName, shared: true, tracks: [currentHook.track] } : exampleCreators[0]} backLabel="Back to Hooks" account={account} player={libraryPlayer} onVoice={setVoiceDetail} onClose={() => setHookCreator(false)} onSongOptions={setGlobalSongOptions} onOpenPlayer={() => setPlayerOpen(true)} /></LightSurface> : !currentHook ? <View style={{ flex: 1, backgroundColor: '#101012', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}><Label style={{ color: '#FFFFFF' }}>No more local Hooks</Label><Pressable accessibilityRole="button" accessibilityLabel="Restore hidden Hooks" onPress={() => void hookPreferences.resetHidden()} style={{ padding: 16 }}><Label style={{ color: '#FFFFFF' }}>Restore hidden Hooks</Label></Pressable>{!!hookPreferences.error && <Label accessibilityRole="alert">{hookPreferences.error}</Label>}</View> : hookExpanded ? <LightSurface><HookPlayer key={currentHook.id} clip={currentHook} preferences={hookPreferences} account={account} community={community} library={library} active={!playerOpen && !searchNotifications && !globalSongOptions && !globalPlaylistTrack && !globalSharing} position={hookPositions} onBack={() => setHookExpanded(false)} onNext={() => moveHook(1)} onPrevious={() => moveHook(-1)} onSong={track => { void libraryPlayer.start(track, library.tracks, 'hooks-song'); setPlayerOpen(true); }} onCreator={() => currentHook.creatorId === 'local-profile' ? setTab('profile') : setHookCreator(true)} onRemix={reuseTrack} onCreated={id => setHookId(id)} /></LightSurface> : <LightSurface><Discovery clip={currentHook} active={!searchNotifications && !bedtimeOpen && !photoOpen && !playerOpen} videoPositions={hookPositions} onOpen={() => { audioPlayback.player.pause(); libraryPlayer.player.pause(); setHookExpanded(true); }} scrollOffsets={hooksScroll} onInspiration={kind => { Keyboard.dismiss(); if (kind === 'bedtime') { audioPlayback.player.pause(); libraryPlayer.player.pause(); setBedtimeOpen(true); } else { setPhotoInspiration(kind); setPhotoOpen(true); } }} onCollection={setHookCollectionId} onNotifications={() => setSearchNotifications(true)} /></LightSurface> : tab === 'search' ? creatorOpen ? <LightSurface><CreatorProfile scrollOffsets={searchScroll} onVoice={setVoiceDetail} key={creatorTarget.id} creator={creatorTarget} account={account} player={libraryPlayer} onClose={() => setCreatorOpen(false)} onSongOptions={setGlobalSongOptions} onOpenPlayer={() => setPlayerOpen(true)} /></LightSurface> : <Search history={searchHistory} commentCounts={Object.fromEntries(library.tracks.map(track => [track.id, community.data.comments.filter(comment => comment.trackId === track.id).length]))} library={library} player={libraryPlayer} query={searchQuery} setQuery={setSearchQuery} filter={searchFilter} setFilter={setSearchFilter} phase={searchPhase} setPhase={setSearchPhase} scrollOffsets={searchScroll} onSongOptions={setGlobalSongOptions} onProfile={creator => { setCreatorTarget(creator || exampleCreators[0]); setCreatorOpen(true); }} onPlaylist={id => { setSearchPlaylistOrigin(libraryRoute); openPlaylist(id); }} onInspiration={kind => { if (kind === 'photo') { Keyboard.dismiss(); setPhotoInspiration('photo'); setPhotoOpen(true); } else { setTab('create'); setOverlay('record'); } }} onNotifications={() => setSearchNotifications(true)} onOpenPlayer={() => setPlayerOpen(true)} /> : tab === 'profile' ? <Profile recovery={profileRecovery.session} onRecoveryClosed={profileRecovery.clear} ownVoices={ownVoices} onVoice={setVoiceDetail} account={account} entitlements={entitlements} library={library} player={libraryPlayer} onCreate={() => setTab('create')} onNotifications={() => setSearchNotifications(true)} onOpenPlayer={() => setPlayerOpen(true)} onSongOptions={setGlobalSongOptions} /> : <Library onDetailBack={searchPlaylistOrigin !== null ? () => { setLibraryRoute(searchPlaylistOrigin); setSearchPlaylistOrigin(null); setTab('search'); } : undefined} route={libraryRoute} onRoute={setLibraryRoute} onCreate={() => setTab('create')} library={library} player={libraryPlayer} onReuse={(track, withAudio) => { void reuseTrack(track, withAudio); }} />}
-      </View>{searchNotifications && <View style={StyleSheet.absoluteFill}><Notifications hooks={tab === 'hooks'} onCreate={() => { setSearchNotifications(false); setTab('create'); }} access={notificationAccess} songs={library.songs} onClose={() => setSearchNotifications(false)} onOpenSong={song => { void libraryPlayer.start(song, library.songs, 'activity'); setPlayerOpen(true); }} /></View>}</View>
+      </> : tab === 'hooks' ? hookCollectionId ? <LightSurface><HookCollection key={hookCollectionId} item={hookCollection(hookCollectionId)} library={library} player={libraryPlayer} onBack={() => setHookCollectionId(null)} onCreate={() => { setHookCollectionId(null); setTab('create'); }} onSongOptions={setGlobalSongOptions} /></LightSurface> : hookCreator ? <LightSurface><CreatorProfile scrollOffsets={hooksScroll} creator={currentHook?.creatorName ? { ...exampleCreators[0], id: currentHook.creatorId, name: currentHook.creatorName, shared: true, tracks: [currentHook.track] } : exampleCreators[0]} backLabel="Back to Hooks" account={account} player={libraryPlayer} onVoice={setVoiceDetail} onClose={() => setHookCreator(false)} onSongOptions={setGlobalSongOptions} onOpenPlayer={() => setPlayerOpen(true)} /></LightSurface> : !currentHook ? <View style={{ flex: 1, backgroundColor: '#101012', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}><Label style={{ color: '#FFFFFF' }}>No more local Hooks</Label><Pressable accessibilityRole="button" accessibilityLabel="Restore hidden Hooks" onPress={() => void hookPreferences.resetHidden()} style={{ padding: 16 }}><Label style={{ color: '#FFFFFF' }}>Restore hidden Hooks</Label></Pressable>{!!hookPreferences.error && <Label accessibilityRole="alert">{hookPreferences.error}</Label>}</View> : hookExpanded ? <LightSurface><HookPlayer key={currentHook.id} clip={currentHook} preferences={hookPreferences} account={account} community={community} library={library} active={!playerOpen && !searchNotifications && !globalSongOptions && !globalPlaylistTrack && !globalSharing} position={hookPositions} onBack={() => setHookExpanded(false)} onNext={() => moveHook(1)} onPrevious={() => moveHook(-1)} onSong={track => { void libraryPlayer.start(track, library.tracks, 'hooks-song'); setPlayerOpen(true); }} onCreator={() => currentHook.creatorId === 'local-profile' ? setTab('profile') : setHookCreator(true)} onRemix={reuseTrack} onCreated={id => setHookId(id)} /></LightSurface> : <LightSurface><Discovery clip={currentHook} active={!searchNotifications && !bedtimeOpen && !photoOpen && !playerOpen} videoPositions={hookPositions} onOpen={() => { audioPlayback.player.pause(); libraryPlayer.player.pause(); setHookExpanded(true); }} scrollOffsets={hooksScroll} onInspiration={kind => { Keyboard.dismiss(); if (kind === 'bedtime') { audioPlayback.player.pause(); libraryPlayer.player.pause(); setBedtimeOpen(true); } else { setPhotoInspiration(kind); setPhotoOpen(true); } }} onCollection={setHookCollectionId} onNotifications={() => setSearchNotifications(true)} /></LightSurface> : tab === 'search' ? creatorOpen ? <LightSurface><CreatorProfile scrollOffsets={searchScroll} onVoice={setVoiceDetail} key={creatorTarget.id} creator={creatorTarget} account={account} player={libraryPlayer} onClose={() => setCreatorOpen(false)} onSongOptions={setGlobalSongOptions} onOpenPlayer={() => setPlayerOpen(true)} /></LightSurface> : <Search history={searchHistory} commentCounts={Object.fromEntries(library.tracks.map(track => [track.id, community.data.comments.filter(comment => comment.trackId === track.id).length]))} library={library} player={libraryPlayer} query={searchQuery} setQuery={setSearchQuery} filter={searchFilter} setFilter={setSearchFilter} phase={searchPhase} setPhase={setSearchPhase} scrollOffsets={searchScroll} onSongOptions={setGlobalSongOptions} onProfile={creator => { setCreatorTarget(creator || exampleCreators[0]); setCreatorOpen(true); }} onPlaylist={id => { setSearchPlaylistOrigin(libraryRoute); openPlaylist(id); }} onInspiration={kind => { if (kind === 'photo') { Keyboard.dismiss(); setPhotoInspiration('photo'); setPhotoOpen(true); } else { setTab('create'); setOverlay('record'); } }} onNotifications={() => setSearchNotifications(true)} onOpenPlayer={() => setPlayerOpen(true)} /> : tab === 'profile' ? <Profile recovery={profileRecovery.session} onRecoveryClosed={profileRecovery.clear} ownVoices={ownVoices} onVoice={setVoiceDetail} account={account} entitlements={entitlements} library={library} player={libraryPlayer} onCreate={() => setTab('create')} onNotifications={() => setSearchNotifications(true)} onOpenPlayer={() => setPlayerOpen(true)} onSongOptions={setGlobalSongOptions} /> : <Library onDetailBack={searchPlaylistOrigin !== null ? () => { setLibraryRoute(searchPlaylistOrigin); setSearchPlaylistOrigin(null); setTab('search'); } : undefined} route={libraryRoute} onRoute={setLibraryRoute} onCreate={() => setTab('create')} library={library} player={libraryPlayer} onReuse={(track, withAudio) => { void reuseTrack(track, withAudio); }} />}</Suspense>
+      </View>{searchNotifications && <View style={StyleSheet.absoluteFill}><Suspense fallback={null}><Notifications hooks={tab === 'hooks'} onCreate={() => { setSearchNotifications(false); setTab('create'); }} access={notificationAccess} songs={library.songs} onClose={() => setSearchNotifications(false)} onOpenSong={song => { void libraryPlayer.start(song, library.songs, 'activity'); setPlayerOpen(true); }} /></Suspense></View>}</View>
       {libraryPlayer.track && tab !== 'create' && !(tab === 'hooks' && hookExpanded && !hookCreator) && <LibraryMiniPlayer player={libraryPlayer} onOpen={() => setPlayerOpen(true)} />}
       {!((tab === 'search' || (tab === 'library' && libraryRoute === 'search')) && keyboardVisible) && !(tab === 'library' && (libraryRoute === 'liked' || libraryRoute === 'shared' || libraryRoute.startsWith('playlist:'))) && !(tab === 'hooks' && hookCollectionId) && <MainNavigation playback={libraryPlayer.track ? { track: libraryPlayer.track, playing: libraryPlayer.status.playing, onOpen: () => setPlayerOpen(true), onToggle: () => { void libraryPlayer.toggle(); } } : undefined} tab={tab} dark={(tab === 'hooks' && !searchNotifications && !hookCreator) || theme.dark} avatarUri={account.profile.avatarUri} onSelect={next => { Keyboard.dismiss(); setSearchNotifications(false); if (next === 'library') setSearchPlaylistOrigin(null); setTab(next); }} />}
       {!!(storageError || audioStorageError || notice || media.error || mediaBusy || attachmentCleanup.error) && <View style={A.notice}>
@@ -385,6 +371,7 @@ function CreationApp() {
         {!!notice && <IconButton name="close" label="Dismiss notice" onPress={() => setNotice('')} style={{ width: 32, height: 32, alignSelf: 'flex-end' }} />}
       </View>}
     </SafeAreaView></ThemedSurface>
+    <Suspense fallback={null}>
 
     {photoOpen && <LightSurface><PhotoToSong inspiration={photoInspiration} canSave={library.ready} onClose={() => setPhotoOpen(false)} onCreate={async (template, draft, prompt, isActive) => { const track = await library.createSample(template, draft.place, draft.style, prompt, undefined, isActive, { inputs: { mode: 'Simple', prompt, instrumental: false }, media: { id: draft.id, name: draft.name, kind: 'images', origin: 'photo' } }); if (!track) return false; setTab('library'); setLibraryRoute('home'); return true; }} /></LightSurface>}
     {playerOpen && <LibraryPlayer player={libraryPlayer} library={library} community={community} author={account.profile.name} account={account} onClose={() => { if (tab === 'hooks' && hookExpanded) libraryPlayer.player.pause(); setPlayerOpen(false); }} onReuse={(track, withAudio) => { void reuseTrack(track, withAudio); }} />}
@@ -412,6 +399,7 @@ function CreationApp() {
       {overlay === 'audio' ? <View style={{ paddingBottom: 15 }}>{menuItem('Browse', 'music-box-multiple-outline', () => { setOverlay(null); setSongPicker(true); }, menuInk)}<View style={A.menuDivider} />{menuItem('Upload', 'upload', chooseDocument, menuInk)}<View style={A.menuDivider} />{menuItem('Record', 'microphone', () => { audioPlayback.player.pause(); libraryPlayer.player.pause(); setOverlay('record'); }, menuInk)}</View>
       : <View style={A.overlayMessage}><Label style={[S.heading, { marginBottom: 16 }]}>What can I do?</Label><Label>Describe a song in Simple mode, or shape your lyrics and styles in Advanced. Attach audio or media, then save a clearly labeled local example to your Library.</Label><Pressable accessibilityRole="button" onPress={() => setOverlay(null)} style={A.closeMessage}><Label>Close</Label></Pressable></View>}
     </Sheet></ThemedSurface>}
+    </Suspense>
   </View></View>;
 }
 
@@ -422,7 +410,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface },
   desktop: { flex: 1, backgroundColor: '#222126', alignItems: 'center' },
   app: { flex: 1, width: '100%', maxWidth: 480, backgroundColor: C.surface, overflow: 'hidden' },
-  simpleCard: { flex: 1, marginHorizontal: 16, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', borderRadius: 20, padding: 15, paddingTop: 15, paddingBottom: 3 },
+  simpleCard: { flex: 1, marginHorizontal: 16, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A', backgroundColor: C.surface === '#101012' ? undefined : '#1010120A', borderRadius: 20, padding: 15, paddingTop: 15, paddingBottom: 3 },
   addTarget: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   addCircle: { position: 'absolute', width: 40, height: 40, borderRadius: 999, backgroundColor: C.surface === '#101012' ? '#FFFFFF08' : '#1010120A' },
   help: { position: 'absolute', right: 3, bottom: 3 },
@@ -446,6 +434,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   titleInput: { gap: 2, borderRadius: 20, height: 48, paddingLeft: 21, paddingRight: 16, borderWidth: 1, borderColor: C.surface === '#101012' ? '#FFFFFF20' : '#1010121A' },
   createRow: { margin: 16, marginBottom: 8.1, flexDirection: 'row', gap: 8 },
   create: { height: 56, borderRadius: 999, flexDirection: 'row', gap: 6, justifyContent: 'center', alignItems: 'center' },
+  createIdle: { backgroundColor: '#4D4D4D' },
   createText: { color: C.white, fontFamily: Fonts.medium, fontSize: 18.5, lineHeight: 22, letterSpacing: 0.14 },
   clear: { width: 56, height: 56, borderRadius: 999, backgroundColor: C.surface === '#101012' ? C.control : '#10101230' },
   library: { flex: 1, backgroundColor: C.surface, padding: 24 },

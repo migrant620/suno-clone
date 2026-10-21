@@ -4,9 +4,7 @@ import { Modal, Platform, Pressable, StyleSheet, Text, TextProps, View, ViewStyl
 import Undo2 from 'lucide-react-native/icons/undo-2';
 import Redo2 from 'lucide-react-native/icons/redo-2';
 import Library from 'lucide-react-native/icons/library';
-import ioniconsGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json';
-import materialGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialIcons.json';
-import communityGlyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/MaterialCommunityIcons.json';
+import { communityGlyphs, ioniconsGlyphs, materialGlyphs } from './iconGlyphs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tokens } from './tokens';
 import { useSurfaceColors } from './Theme';
@@ -38,9 +36,9 @@ function glyphSet<M extends Record<string, number>>(glyphMap: M, family: string)
     return <Text selectable={false} allowFontScaling={false} {...props} style={[{ fontSize: size, color: ready ? color : 'transparent' }, style, { fontFamily: family, fontWeight: 'normal', fontStyle: 'normal' }]}>{typeof code === 'number' ? String.fromCodePoint(code) : '?'}</Text>;
   };
 }
-export const Ionicons = glyphSet(ioniconsGlyphMap as Record<keyof typeof ioniconsGlyphMap, number>, 'ionicons');
-const MaterialIcons = glyphSet(materialGlyphMap as Record<keyof typeof materialGlyphMap, number>, 'material');
-const MaterialCommunityIcons = glyphSet(communityGlyphMap as Record<keyof typeof communityGlyphMap, number>, 'material-community');
+export const Ionicons = glyphSet(ioniconsGlyphs as Record<keyof typeof ioniconsGlyphs, number>, 'ionicons');
+const MaterialIcons = glyphSet(materialGlyphs as Record<keyof typeof materialGlyphs, number>, 'material');
+const MaterialCommunityIcons = glyphSet(communityGlyphs as Record<keyof typeof communityGlyphs, number>, 'material-community');
 
 export const C = tokens.colors;
 export type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -56,12 +54,13 @@ export function Icon({ name, size = 24, color: suppliedColor }: { name: IconName
   if (name === 'thumb-up') return <MaterialIcons name="thumb-up-alt" size={size} color={color} accessible={false} aria-hidden importantForAccessibility="no-hide-descendants" />;
   return <MaterialCommunityIcons name={name} size={size} color={color} accessible={false} aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />;
 }
-export function IconButton({ name, label, onPress, disabled, color, style, size = 24, circle, glyphBox }: {
+export function IconButton({ name, label, onPress, disabled, color, style, size = 24, circle, glyphBox, selected }: {
   name: IconName; label: string; onPress: () => void; disabled?: boolean; color?: string; style?: ViewStyle; size?: number; circle?: string; glyphBox?: number;
+  selected?: boolean;
 }) {
   const glyph = <Icon name={name} size={size} color={disabled ? C.disabled : color} />;
   const labelId = useGlyphLabelId();
-  return <Pressable accessibilityRole="button" accessibilityLabel={glyphBox ? undefined : label} aria-labelledby={glyphBox ? labelId : undefined} accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress}
+  return <Pressable accessibilityRole="button" accessibilityLabel={glyphBox ? undefined : label} aria-labelledby={glyphBox ? labelId : undefined} accessibilityState={{ disabled: !!disabled, ...(selected === undefined ? {} : { selected }) }} aria-pressed={selected} disabled={disabled} onPress={onPress}
     style={({ pressed }) => [S.iconButton, style, pressed && { opacity: 0.55 }]}>
     {!!circle && <View pointerEvents="none" style={[S.disc, { backgroundColor: circle }]} />}
     {glyphBox ? <GlyphLabel id={labelId} label={label} size={glyphBox}>{glyph}</GlyphLabel> : glyph}
