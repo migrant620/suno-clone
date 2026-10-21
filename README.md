@@ -87,7 +87,7 @@ The static output is written to `dist/`. Serve that directory over HTTP or HTTPS
 
 ## Demo build
 
-The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-10-21 (GitHub Pages commit `212ed89c`).
+The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-10-21 (GitHub Pages commit `796af1ae`).
 
 ## Scope and limitations
 

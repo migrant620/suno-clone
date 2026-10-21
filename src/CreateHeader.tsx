@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { GradientRing } from './lineIcons';
 import { Icon, Label } from './ui';
 import { useSurfaceColors } from './Theme';
 import { useCreditPromotion } from './useCreditPromotion';
@@ -20,10 +20,7 @@ export function CreateHeader({ mode, model, freePlan, promotion, onMode, onModel
     <View style={[H.row, width < 360 && { paddingRight: 36 }]}>
       <Pressable accessibilityRole="button" accessibilityLabel="Switch creation mode" onPress={onMode} style={H.mode}><Label numberOfLines={1} style={[H.modeText, { minWidth: MODE_TITLE_EM[mode] * MODE_TITLE_SOURCE_SIZE }]}>{mode}</Label><Icon name="chevron-down" size={20} /></Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Select model" onPress={onModel} style={H.model}>
-        {banner ? <Svg pointerEvents="none" accessible={false} aria-hidden width={93} height={48} viewBox="0 0 93 48" style={StyleSheet.absoluteFill}>
-          <Defs><LinearGradient id={gradient} x1="0%" y1="0%" x2="100%" y2="100%"><Stop offset="0" stopColor="#FF2997" /><Stop offset="0.5" stopColor="#FF176C" /><Stop offset="0.8" stopColor="#FF7800" /><Stop offset="1" stopColor="#FFB000" /></LinearGradient></Defs>
-          <Rect x={0.75} y={0.75} width={91.5} height={46.5} rx={23.25} fill="none" stroke={`url(#${gradient})`} strokeWidth={1.5} />
-        </Svg> : <View pointerEvents="none" accessible={false} style={[StyleSheet.absoluteFill, H.modelBorder, { borderColor: colors.surface === '#101012' ? '#F7F4EF26' : '#1010121A' }]} />}
+        {banner ? <GradientRing id={gradient} width={93} height={48} /> : <View pointerEvents="none" accessible={false} style={[StyleSheet.absoluteFill, H.modelBorder, { borderColor: colors.surface === '#101012' ? '#F7F4EF26' : '#1010121A' }]} />}
         <View style={H.modelLabel}><Label numberOfLines={1} style={H.modelText}>{model}</Label></View>
         <View style={H.modelChevron} {...(modelOpen ? {} : { accessibilityRole: 'button' as const, accessibilityLabel: 'Close', 'aria-hidden': true, focusable: false })} pointerEvents="none"><Icon name={modelOpen ? 'chevron-up' : 'chevron-down'} size={20} /></View>
       </Pressable>

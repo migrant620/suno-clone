@@ -1,8 +1,9 @@
 import { ThemeColors, useSurfaceColors } from './Theme';
 import React, { useRef, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Switch, TextInput, View, useWindowDimensions } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { C, IconButton, Label, S } from './ui';
 import { Fonts } from './fonts';
+import { OutlineSwitch } from './OutlineSwitch';
 
 export function PlaylistForm({ initialName = '', initialPublic = false, editing = false, onClose, onSave }: {
   initialName?: string; initialPublic?: boolean; editing?: boolean;
@@ -22,7 +23,7 @@ export function PlaylistForm({ initialName = '', initialPublic = false, editing 
         <View style={F.header}><Label style={F.heading}>{editing ? 'Edit Playlist' : 'Create New Playlist'}</Label><IconButton name="close" label="Cancel playlist" onPress={close} style={F.close} /></View>
         <View style={F.nameArea}><TextInput ref={input} autoFocus={Platform.OS === 'web'} accessibilityLabel="Playlist name" placeholder="Untitled" placeholderTextColor="#858585" value={name} onChangeText={setName} selectionColor={C.primary} multiline style={F.name} /></View>
         <View style={F.footer}>
-          <View style={[S.row, F.visibility]}><Label style={F.visibilityText}>Show on my Public Profile &amp; Search</Label><Switch accessibilityLabel="Show on my Public Profile & Search" value={isPublic} onValueChange={setPublic} trackColor={{ false: C.control, true: C.ink }} thumbColor={isPublic ? C.surface : '#85848C'} /></View>
+          <View style={[S.row, F.visibility]}><Label style={F.visibilityText}>Show on my Public Profile &amp; Search</Label><OutlineSwitch label="Show on my Public Profile & Search" value={isPublic} onValueChange={setPublic} scale={0.81} /></View>
           {isPublic && <Label style={F.disclosure}>Local demo visibility only. Nothing is published to Suno.</Label>}
           <Pressable accessibilityRole="button" accessibilityState={{ disabled: !valid }} disabled={!valid} onPress={() => { Keyboard.dismiss(); onSave(name.trim(), isPublic); }} style={[F.submit, !valid && { backgroundColor: '#9D9B98' }]}><Label style={[F.submitText, !valid && { color: '#C0BEBB' }]}>{editing ? 'Save Changes' : 'Create Playlist'}</Label></Pressable>
         </View>
@@ -39,7 +40,7 @@ const styles = (C: ThemeColors) => StyleSheet.create({
   nameArea: { flex: 1, justifyContent: 'center', paddingHorizontal: 16 },
   name: { height: 148, padding: 16, fontFamily: Fonts.regular, fontSize: 28, lineHeight: 34, color: C.ink, textAlign: 'center', textAlignVertical: 'top', ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}) },
   footer: { padding: 16, gap: 16 },
-  visibility: { justifyContent: 'center', gap: 12, minHeight: 38 },
+  visibility: { justifyContent: 'center', gap: 14.2, minHeight: 38 },
   visibilityText: { color: C.secondary, fontSize: 14, flexShrink: 1 },
   disclosure: { fontSize: 12, color: C.muted, textAlign: 'center' },
   submit: { height: 56, borderRadius: 99, backgroundColor: C.ink, justifyContent: 'center', alignItems: 'center' },

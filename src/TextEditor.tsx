@@ -21,8 +21,6 @@ export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }:
   const anchors = useRef(new Map<string, View>());
   const [naming, setNaming] = useState<Naming | null>(entry === 'save' ? { type: 'save' } : null);
   const [name, setName] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState<SavedText | null>(null);
-  const [confirmReset, setConfirmReset] = useState(false);
   const enhancement = useEnhancement(state, dispatch);
   const input = useRef<TextInput>(null);
   const nameInput = useRef<TextInput>(null);
@@ -66,10 +64,10 @@ export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }:
         {items.map(item => <View key={item.id} style={E.savedRow}>
           <Pressable accessibilityRole="button" accessibilityLabel={`Use ${item.name}`} onPress={() => { dispatch({ type: 'edit', kind, value: item.value }); if (entry === 'saved') onClose(); else setListing(false); }} style={E.savedContent}>
             <View style={E.songIcon}><Icon name="music-note" /></View>
-            <View style={{ flex: 1 }}><Label numberOfLines={1}>{item.name}</Label><Label style={E.time}>{Date.now() - item.createdAt < 60000 ? 'Just now' : `${Math.floor((Date.now() - item.createdAt) / 60000)}m ago`}</Label></View>
+            <View style={{ flex: 1 }}><Label numberOfLines={1} style={E.savedName}>{item.name}</Label><Label style={E.time}>{Date.now() - item.createdAt < 60000 ? 'Just now' : `${Math.floor((Date.now() - item.createdAt) / 60000)}m ago`}</Label></View>
           </Pressable>
           <View collapsable={false} ref={view => { if (view) anchors.current.set(item.id, view); else anchors.current.delete(item.id); }}>
-            <IconButton name="dots-vertical" label={`More options for ${item.name}`} onPress={() => openMenu(item.id)} />
+            <IconButton name="dots-vertical" label="More options" onPress={() => openMenu(item.id)} />
           </View>
         </View>)}
       </ScrollView>
@@ -77,31 +75,23 @@ export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }:
         <Pressable accessibilityRole="button" accessibilityLabel="Close options" onPress={() => setMenu(null)} style={StyleSheet.absoluteFill} />
         <View style={[E.contextMenu, { left: menu.x, top: menu.y }]}>
           <Pressable accessibilityRole="button" accessibilityLabel="Rename" onPress={() => openName({ type: 'rename', item: menuItem })} style={E.menuItem}><Icon name="pencil" /><Label>Rename</Label></Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Delete" onPress={() => { setConfirmDelete(menuItem); setMenu(null); }} style={E.menuItem}><Icon name="delete" color={C.primary} /><Label style={{ color: C.primary }}>Delete</Label></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Delete" onPress={() => { dispatch({ type: 'delete', id: menuItem.id }); setMenu(null); }} style={E.menuItem}><Icon name="delete" color={C.primary} /><Label style={{ color: C.primary }}>Delete</Label></Pressable>
         </View>
       </View>}
     </View> : <>
       <Label style={[S.heading, E.title]}>{title}</Label>
-      <View style={E.modeToggle} accessibilityRole="radiogroup">
-        {(['Simple', 'Advanced'] as const).map(value => (
-          <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: state.mode === value }} aria-checked={state.mode === value}
-            accessibilityLabel={`${value} editor mode`} onPress={() => { if (state.mode !== value) dispatch({ type: 'mode' }); }} style={[E.modeOption, state.mode === value && { backgroundColor: C.surface }]}>
-            <Label style={[E.modeLabel, state.mode === value && { color: C.ink, fontFamily: Fonts.medium }]}>{value}</Label>
-          </Pressable>
-        ))}
-      </View>
       <TextInput ref={input} multiline autoFocus={Platform.OS === 'web'} accessibilityLabel={title} value={h.value} onChangeText={value => dispatch({ type: 'edit', kind, value })}
-        style={E.input} placeholder={kind === 'lyrics' ? 'Write your lyrics here' : 'Describe what you want your song to sound like'} placeholderTextColor={C.placeholder}
+        style={E.input} placeholder={kind === 'lyrics' ? 'Write lyrics or a prompt' : 'Describe what you want your song to sound like'} placeholderTextColor={C.placeholder}
         selectionColor={C.primary} textAlignVertical="top" />
       <View style={E.footer}>
-        {state.mode === 'Advanced' && <View style={E.toolbar}>
+        <View style={E.toolbar}>
           <IconButton name="undo" label="Undo" disabled={!h.past.length} onPress={() => dispatch({ type: 'undo', kind })} style={E.tool} />
           <IconButton name="redo" label="Redo" disabled={!h.future.length} onPress={() => dispatch({ type: 'redo', kind })} style={E.tool} />
           <IconButton name="bookshelf" label={`Saved ${title}`} onPress={() => { Keyboard.dismiss(); setListing(true); }} style={E.tool} />
           <IconButton name={isSaved ? 'bookmark' : 'bookmark-outline'} label={`Save ${singular}`} disabled={!h.value.trim()} color={isSaved ? C.primary : C.ink} onPress={() => openName({ type: 'save' })} style={E.tool} />
-          <IconButton name="delete" label="Reset" disabled={!h.value.length} onPress={() => setConfirmReset(true)} style={E.tool} />
+          <IconButton name="delete" label="Reset" disabled={!h.value.length} onPress={() => dispatch({ type: 'reset', kind })} style={E.tool} />
           {enhancement.pending === kind ? <View style={E.tool}><ActivityIndicator color={C.ink} /></View> : <IconButton name="auto-fix" label="Enhance" onPress={() => enhancement.request(kind)} style={E.tool} />}
-        </View>}
+        </View>
         <IconButton name="check" label="Done" onPress={() => { Keyboard.dismiss(); onClose(); }} color={C.white} size={24} circle={C.surface === '#101012' ? C.primary : '#FF4B27'} />
       </View>
     </>}
@@ -118,47 +108,25 @@ export function TextEditor({ kind, state, dispatch, onClose, entry = 'editor' }:
         </View>
       </View></View>
     </Modal>}
-    {confirmDelete && <Modal transparent animationType="fade" onRequestClose={() => setConfirmDelete(null)}>
-      <View style={E.dialogOuter}><View style={E.dialog}>
-        <Label style={E.dialogTitle}>Delete saved {singular}?</Label>
-        <Label style={E.dialogDescription}>{confirmDelete.name} will be removed from your saved {title.toLowerCase()}. This cannot be undone.</Label>
-        <View style={E.dialogButtons}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Cancel" onPress={() => setConfirmDelete(null)} style={E.cancel}><Label>Cancel</Label></Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Delete saved item" onPress={() => { dispatch({ type: 'delete', id: confirmDelete.id }); setConfirmDelete(null); }} style={[E.save, { backgroundColor: C.primary }]}><Label style={{ color: C.surface }}>Delete</Label></Pressable>
-        </View>
-      </View></View>
-    </Modal>}
-    {confirmReset && <Modal transparent animationType="fade" onRequestClose={() => setConfirmReset(false)}>
-      <View style={E.dialogOuter}><View style={E.dialog}>
-        <Label style={E.dialogTitle}>Reset {singular}?</Label>
-        <Label style={E.dialogDescription}>{kind === 'lyrics' ? 'Your lyrics' : 'Your style'} will be cleared. This cannot be undone.</Label>
-        <View style={E.dialogButtons}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Cancel" onPress={() => setConfirmReset(false)} style={E.cancel}><Label>Cancel</Label></Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Reset text" onPress={() => { dispatch({ type: 'reset', kind }); setConfirmReset(false); }} style={[E.save, { backgroundColor: C.primary }]}><Label style={{ color: C.surface }}>Reset</Label></Pressable>
-        </View>
-      </View></View>
-    </Modal>}
     {enhancement.dialog}
   </>;
 }
 
 const styles = (C: ThemeColors) => StyleSheet.create({
   title: { marginHorizontal: 16, marginTop: 12, marginBottom: 8 },
-  modeToggle: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: C.toolbar, borderRadius: 12, padding: 4, gap: 4 },
-  modeOption: { flex: 1, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: 9 },
-  modeLabel: { fontSize: 14, color: C.muted, fontFamily: Fonts.regular },
   input: { flex: 1, marginHorizontal: 16, marginBottom: 20, fontFamily: Fonts.regular, color: C.ink, fontSize: 16, lineHeight: 20, padding: 0, paddingTop: 0, ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}), includeFontPadding: false },
-  footer: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingLeft: 16, paddingRight: 14, gap: 7 },
+  footer: { flexDirection: 'row', alignItems: 'center', paddingTop: 16.9, paddingBottom: 15.1, paddingLeft: 16.6, paddingRight: 14.2, gap: 6.1 },
   toolbar: { backgroundColor: C.toolbar, flex: 1, height: 48, borderRadius: 24, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, boxShadow: '0px 4px 5px rgba(0,0,0,0.18)' },
   tool: { flex: 1, height: 48, alignItems: 'center', justifyContent: 'center' },
   done: { width: 40, height: 40, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
-  listTitle: { textAlign: 'center', fontFamily: Fonts.medium, marginBottom: 24 },
-  list: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 80 },
+  listTitle: { textAlign: 'center', fontFamily: Fonts.medium, lineHeight: 19.3, marginTop: -3.6, marginBottom: 20 },
+  list: { paddingHorizontal: 16, paddingTop: 0, paddingBottom: 80 },
   empty: { color: C.muted, textAlign: 'center' },
   savedRow: { flexDirection: 'row', alignItems: 'center', minHeight: 72, zIndex: 1 },
-  savedContent: { flexDirection: 'row', alignItems: 'center', gap: 24, flex: 1 },
+  savedContent: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
   songIcon: { width: 40, height: 40, borderRadius: 22, borderColor: C.ink, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  time: { fontSize: 12, color: C.muted, marginTop: 2 },
+  savedName: { lineHeight: 19.3 },
+  time: { fontSize: 12, lineHeight: 14.6, color: C.muted },
   contextMenu: { position: 'absolute', backgroundColor: C.toolbar, paddingVertical: 8, borderRadius: 20, width: 144, zIndex: 10, boxShadow: '0px 4px 12px rgba(0,0,0,0.17)' },
   menuItem: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 48, paddingHorizontal: 16 },
   dialogOuter: { flex: 1, backgroundColor: '#00000055', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 36 },

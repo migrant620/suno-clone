@@ -1,12 +1,7 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import Search from 'lucide-react-native/icons/search';
-import Square from 'lucide-react-native/icons/square';
-import Play from 'lucide-react-native/icons/play';
-import Pause from 'lucide-react-native/icons/pause';
+import { Library, Pause, Play, Search, Sparkle, Square } from './lineIcons';
 import { AudioTrack } from './audioData';
-import Library from 'lucide-react-native/icons/library';
-import Sparkle from 'lucide-react-native/icons/sparkle';
 import { GlyphLabel, Ionicons } from './ui';
 
 type Tab = 'hooks' | 'search' | 'create' | 'library' | 'profile';

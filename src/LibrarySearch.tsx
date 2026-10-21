@@ -5,9 +5,7 @@ import { AudioTrack } from './audioData';
 import { useLibrary } from './useLibrary';
 import { useLibraryPlayback } from './useLibraryPlayback';
 import { SongRow } from './SongRow';
-import ChevronLeft from 'lucide-react-native/icons/chevron-left';
-import SearchIcon from 'lucide-react-native/icons/search';
-import X from 'lucide-react-native/icons/x';
+import { ChevronLeft, Search as SearchIcon, X } from './lineIcons';
 import { Fonts } from './fonts';
 
 export function LibrarySearch({ library, player, onSongOptions, onBack }: {
@@ -30,11 +28,11 @@ export function LibrarySearch({ library, player, onSongOptions, onBack }: {
   }, [onBack]);
   return <View style={S.page}>
     <View testID="library-search-header" style={S.header}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Back to Library" testID="library-search-back" onPress={onBack} style={({ pressed }) => [S.backTarget, pressed && { opacity: 0.65 }]}><View style={S.backCircle}><ChevronLeft size={28} strokeWidth={2} color={C.ink} style={{ marginLeft: -1 }} /></View></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Back" testID="library-search-back" onPress={onBack} style={({ pressed }) => [S.backTarget, pressed && { opacity: 0.65 }]}><View style={S.backCircle}><ChevronLeft size={28} strokeWidth={2} color={C.ink} style={{ marginLeft: -1 }} /></View></Pressable>
       <View testID="library-search-field" style={S.search}>
         <View style={S.searchIcon}><SearchIcon color={query ? C.ink : C.secondary} size={22} strokeWidth={2} /></View>
         <TextInput ref={input} autoFocus accessibilityLabel="Search your library" placeholder="Search for songs in your library" autoCapitalize="none" value={query} onChangeText={setQuery} onSubmitEditing={Keyboard.dismiss} submitBehavior="submit" returnKeyType="search" style={S.input} selectionColor={C.primary} placeholderTextColor={C.secondary} />
-        {!!query && <Pressable accessibilityRole="button" accessibilityLabel="Clear search" onPress={() => { setQuery(''); if (Platform.OS === 'web') input.current?.focus(); }} style={({ pressed }) => [S.clear, pressed && { opacity: 0.65 }]}><X color={C.muted} size={24} strokeWidth={2} /></Pressable>}
+        {!!query && <Pressable accessibilityRole="button" accessibilityLabel="Clear Search" onPress={() => { setQuery(''); if (Platform.OS === 'web') input.current?.focus(); }} style={({ pressed }) => [S.clear, pressed && { opacity: 0.65 }]}><X color={C.muted} size={24} strokeWidth={2} /></Pressable>}
       </View>
     </View>
     {!library.ready ? <ActivityIndicator accessibilityLabel="Loading your library" color={C.ink} /> : <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={S.results}>
