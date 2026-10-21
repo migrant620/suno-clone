@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import { ChevronLeft } from './lineIcons';
 import { AudioTrack, clockTime } from './audioData';
 import { useRecorder } from './useRecorder';
 import { AudioConfirm, useTrackPlayback } from './Audio';

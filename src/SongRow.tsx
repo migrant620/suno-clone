@@ -4,6 +4,13 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-nat
 import { AudioTrack, clockTime } from './audioData';
 import { C, Icon, IconButton, Label } from './ui';
 
+export function compactCount(value: number): string {
+  if (value < 1000) return String(value);
+  if (value < 10000) return `${(value / 1000).toFixed(1)}K`;
+  if (value < 1000000) return `${Math.floor(value / 1000)}K`;
+  return `${(value / 1000000).toFixed(1)}M`;
+}
+
 function SongRowImpl({ track, playing, onPress, onOptions, variant, downloadPending }: {
   track: AudioTrack; playing: boolean; onPress: () => void; onOptions: () => void; variant?: 'search';
   downloadPending?: boolean;
@@ -16,7 +23,7 @@ function SongRowImpl({ track, playing, onPress, onOptions, variant, downloadPend
       </View>
       <View style={{ flex: 1 }}>
         <View style={R.titleRow}>{playing && <Icon name="waveform" size={14} color={C.primary} />}<Label numberOfLines={1} style={[R.title, playing && { color: C.primary }]}>{track.title}</Label>{!!track.model && <Label style={R.model}>{track.model}</Label>}</View>
-        <View style={R.titleRow}>{downloadPending && <View accessibilityRole="image" accessibilityLabel="Waiting to download" style={R.pending}><ActivityIndicator size="small" color={C.primary} style={R.pendingRing} /></View>}<Icon name="play" size={14} color={C.muted} /><Label numberOfLines={1} style={R.metadata}>{track.plays || 0} · {track.artist || 'Your audio'}</Label></View>
+        <View style={R.titleRow}>{downloadPending && <View accessibilityRole="image" accessibilityLabel="Waiting to download" style={R.pending}><ActivityIndicator size="small" color={C.primary} style={R.pendingRing} /></View>}<View accessible accessibilityLabel={`${track.plays || 0} plays`} style={R.titleRow}><Icon name="play" size={14} color={C.muted} /><Label style={R.metadata}>{compactCount(track.plays || 0)}</Label></View><Label numberOfLines={1} style={R.metadata}>• {track.artist || 'Your audio'}</Label></View>
       </View>
     </Pressable>
     <IconButton name="dots-vertical" label={`Options for ${track.title}`} onPress={onOptions} size={24} style={{ width: 32, height: 48 }} />

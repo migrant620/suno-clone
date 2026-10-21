@@ -22,6 +22,7 @@ const loaders = {
   Recorder: () => import('./Recorder').then(m => ({ default: m.Recorder })),
   TextEditor: () => import('./TextEditor').then(m => ({ default: m.TextEditor })),
   Notifications: () => import('./Notifications').then(m => ({ default: m.Notifications })),
+  MediaChip: () => import('./MediaChip').then(m => ({ default: m.MediaChip })),
 };
 
 export const Library = lazy(loaders.Library);
@@ -45,6 +46,7 @@ export const AddToPlaylist = lazy(loaders.AddToPlaylist);
 export const Recorder = lazy(loaders.Recorder);
 export const TextEditor = lazy(loaders.TextEditor);
 export const Notifications = lazy(loaders.Notifications);
+export const MediaChip = lazy(loaders.MediaChip);
 
 let prefetched = false;
 export function prefetchScreens(): void {

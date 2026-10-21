@@ -1,9 +1,7 @@
 import { useSheetEscape } from './useSheetEscape';
 import React from 'react';
 import { Modal, Platform, Pressable, StyleSheet, Text, TextProps, View, ViewStyle, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
-import Undo2 from 'lucide-react-native/icons/undo-2';
-import Redo2 from 'lucide-react-native/icons/redo-2';
-import Library from 'lucide-react-native/icons/library';
+import { Library, Redo2, Undo2 } from './lineIcons';
 import { communityGlyphs, ioniconsGlyphs, materialGlyphs } from './iconGlyphs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tokens } from './tokens';
