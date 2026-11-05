@@ -102,4 +102,4 @@ Use real text, inputs, controls and local data. Never embed screenshots of anoth
 
 ## Responsive Behavior
 
-Mobile first. On wider screens the app surface is centered at phone width. Native builds respect platform safe areas and keyboard insets.
+Mobile first. On wider screens the app surface is centered at phone width. This release targets Web; Android and iOS builds are outside its validation scope.

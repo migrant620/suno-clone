@@ -27,7 +27,7 @@ export function AudioConfirm({ title, description, confirm, cancel, onConfirm, o
 
 type SongPickerProps = { onClose: () => void; songs?: AudioTrack[]; likedSongs?: AudioTrack[]; publicSongs?: AudioTrack[] } & (
   { onSelect: (track: AudioTrack) => void; playlist?: never } |
-  { onSelect?: never; playlist: { onAdd: (track: AudioTrack) => void; onRemove: (track: AudioTrack) => void } }
+  { onSelect?: never; playlist: { songIds: string[]; error?: string; onAdd: (track: AudioTrack) => Promise<boolean>; onRemove: (track: AudioTrack) => Promise<boolean> } }
 );
 export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs = [], publicSongs = [] }: SongPickerProps) {
   const C = useSurfaceColors(); const T = styles(C);
@@ -36,15 +36,23 @@ export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<AudioTrack | null>(null);
   const [added, setAdded] = useState<string[]>([]);
-  const togglePlaylistSong = (song: AudioTrack) => {
-    if (!playlist) return;
-    if (added.includes(song.id)) {
-      playlist.onRemove(song);
-      setAdded(current => current.filter(id => id !== song.id));
-    } else {
-      playlist.onAdd(song);
-      setAdded(current => [...current, song.id]);
-    }
+  const [membershipBusy, setMembershipBusy] = useState(false);
+  const [membershipFailed, setMembershipFailed] = useState(false);
+  const membershipPending = React.useRef(false);
+  const mounted = React.useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const included = (id: string) => !!playlist?.songIds.includes(id);
+  const togglePlaylistSong = async (song: AudioTrack) => {
+    if (!playlist || membershipPending.current) return;
+    membershipPending.current = true; setMembershipBusy(true); setMembershipFailed(false);
+    const removing = included(song.id);
+    let saved = false;
+    try { saved = await (removing ? playlist.onRemove(song) : playlist.onAdd(song)); }
+    catch { saved = false; }
+    finally { membershipPending.current = false; if (mounted.current) setMembershipBusy(false); }
+    if (!mounted.current) return;
+    if (saved) setAdded(current => removing ? current.filter(id => id !== song.id) : current.includes(song.id) ? current : [...current, song.id]);
+    else setMembershipFailed(true);
   };
   const { player: preview, status: previewStatus } = usePlayback(null, 250);
   const [previewError, setPreviewError] = useState('');
@@ -58,7 +66,7 @@ export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs
   };
   const choices = tab === 'My Songs' ? (filter === 'All' ? songs : filter === 'Liked' ? likedSongs : publicSongs) : exampleTracks;
   const matches = choices.filter(song => `${song.title} ${song.styles}`.toLowerCase().includes(query.trim().toLowerCase()));
-  return <Sheet onClose={onClose} backgroundColor={C.toolbar} handleHeight={48}>
+  return <Sheet onClose={() => { if (!membershipPending.current) onClose(); }} backgroundColor={C.toolbar} handleHeight={48}>
     <Label style={T.pickerTitle}>{playlist ? (added.length ? `${added.length} ${added.length === 1 ? 'Song' : 'Songs'} Added` : 'Select Songs') : 'Select a song'}</Label>
     <View style={T.search}><View pointerEvents="none" style={T.searchIcon}><Icon name="magnify" color={C.surface === '#101012' ? C.muted : '#5B5B62'} size={24} /></View><TextInput accessibilityLabel="Search songs" placeholder="Search songs" placeholderTextColor={C.surface === '#101012' ? C.muted : '#5B5B62'} value={query} onChangeText={setQuery} style={T.searchInput} />{!!query && <IconButton name="close" label="Clear song search" onPress={() => setQuery('')} style={{ width: 32, height: 40 }} />}</View>
     <View style={T.tabs}>{['My Songs', 'For you', 'Staff Picks'].map(name => <Pressable accessibilityRole="tab" accessibilityState={{ selected: tab === name }} aria-selected={tab === name} key={name} onPress={() => setTab(name)} style={[T.tab, tab === name && { borderBottomColor: C.ink }]}><Label style={{ fontSize: 14, lineHeight: 17, marginTop: 1.5 , color: tab === name ? C.ink : C.surface === '#101012' ? C.muted : '#7D7C83' }}>{name}</Label></Pressable>)}</View>
@@ -67,7 +75,7 @@ export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs
       {matches.map(song => <View key={song.id} style={T.song}><Pressable accessibilityRole="button" accessibilityLabel={`Select ${song.title}`} onPress={() => previewSong(song, true)} accessibilityState={{ selected: selected?.id === song.id }} style={[T.song, { flex: 1 }]}>
         <View style={T.cover}>{song.cover ? <Image source={song.cover} style={{ width: 56, height: 56 }} /> : <Icon name="music-note" />}<Label style={T.duration}>{clockTime(song.duration || 0).replace(/^0/, '')}</Label></View>
         <View style={{ flex: 1 }}><View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>{selected?.id === song.id && previewStatus.playing && <Icon name="waveform" size={14} color={C.primary} />}<Label numberOfLines={1} style={{ fontSize: 14, flexShrink: 1, color: selected?.id === song.id ? C.primary : C.ink }}>{song.title}</Label></View><Label numberOfLines={1} style={{ fontSize: 14, color: C.muted }}>{song.styles}</Label></View>
-      </Pressable>{playlist && <IconButton name={added.includes(song.id) ? 'check' : 'plus'} label={`${added.includes(song.id) ? 'Remove' : 'Add'} ${song.title} ${added.includes(song.id) ? 'from' : 'to'} Playlist`} onPress={() => togglePlaylistSong(song)} color={added.includes(song.id) ? C.primary : C.muted} size={26} style={{ width: 32, height: 48 }} />}</View>)}
+      </Pressable>{playlist && <IconButton name={included(song.id) ? 'check' : 'plus'} label={`${included(song.id) ? 'Remove' : 'Add'} ${song.title} ${included(song.id) ? 'from' : 'to'} Playlist`} disabled={membershipBusy} onPress={() => void togglePlaylistSong(song)} color={included(song.id) ? C.primary : C.muted} size={26} style={{ width: 32, height: 48 }} />}</View>)}
       {!matches.length && <Label style={T.empty}>{query ? 'No matching songs' : filter === 'Liked' ? 'No liked songs yet' : filter === 'Public' ? 'No public songs yet' : 'Create a local example to add your first song'}</Label>}
     </ScrollView>
     {selected && <View style={T.selectionFooter}>
@@ -76,9 +84,10 @@ export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs
       </Pressable>
       <View style={{ flex: 1 }}><Label numberOfLines={1}>{selected.title}</Label><Label accessibilityLabel="Preview playback time" style={{ fontSize: 11, color: C.muted }}>{clockTime(previewStatus.currentTime)}</Label></View>
       {onSelect && <IconButton name="arrow-right" label="Continue" onPress={() => { preview.pause(); onSelect(selected); }} color={C.surface} style={T.continue} />}
-      {playlist && <IconButton name={added.includes(selected.id) ? 'check' : 'plus'} label={added.includes(selected.id) ? 'Remove preview from Playlist' : 'Add preview to Playlist'} onPress={() => togglePlaylistSong(selected)} color={added.includes(selected.id) ? C.primary : C.ink} style={{ ...T.continue, backgroundColor: '#F7F4EF66' }} />}
+      {playlist && <IconButton name={included(selected.id) ? 'check' : 'plus'} label={included(selected.id) ? 'Remove preview from Playlist' : 'Add preview to Playlist'} disabled={membershipBusy} onPress={() => void togglePlaylistSong(selected)} color={included(selected.id) ? C.primary : C.ink} style={{ ...T.continue, backgroundColor: '#F7F4EF66' }} />}
     </View>}
     {!!(previewError || previewStatus.error) && <Label style={T.error}>{previewError || 'This audio preview could not load.'}</Label>}
+    {membershipFailed && <Label accessibilityRole="alert" style={T.error}>{playlist?.error || 'Library changes could not be saved on this device. Try again.'}</Label>}
     {tab !== 'My Songs' && <Label style={T.example}>Local example music · No Suno service connection</Label>}
   </Sheet>;
 }

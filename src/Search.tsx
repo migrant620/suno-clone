@@ -23,6 +23,7 @@ function SearchContent({ history, library, player, query, setQuery, filter, setF
 }) {
   const C = useSurfaceColors(); const S = styles(C);
   const input = useRef<TextInput>(null);
+  const filterNodes = useRef(new Map<string, View>());
   const scroll = useRef<ScrollView>(null);
   const search = query.trim().toLowerCase();
   const catalog = library.tracks;
@@ -52,7 +53,22 @@ function SearchContent({ history, library, player, query, setQuery, filter, setF
   return <View style={S.page}>
     <View style={S.header}><View style={S.search}><View pointerEvents="none" style={S.searchFill} /><Icon name="magnify" color={C.secondary} size={24} /><TextInput ref={input} accessibilityLabel="Search all music" autoCapitalize="none" placeholder="Search" value={query} onFocus={() => { if (phase === 'discover') setPhase('typing'); void history.refresh(); }} onChangeText={change} onSubmitEditing={submit} returnKeyType="search" submitBehavior="submit" style={S.input} selectionColor={C.primary} placeholderTextColor={C.secondary} />{!!query && <IconButton name="close" label="Clear search" color={C.secondary} onPress={() => { change(''); input.current?.focus(); }} style={{ width: 40, height: 44 }} />}</View><View style={S.headerEnd}><IconButton name={phase === 'discover' ? 'bell' : 'close'} label={phase === 'discover' ? 'Notifications' : 'Close search'} onPress={phase === 'discover' ? onNotifications : close} circle={C.field} size={24} /></View></View>
     {phase === 'discover' ? <SearchDiscover commentCounts={commentCounts} library={library} player={player} onSongOptions={onSongOptions} onProfile={onProfile} onInspiration={onInspiration} onOpenPlayer={onOpenPlayer} scrollOffsets={scrollOffsets} onBrowse={() => { setQuery(''); setPhase('results'); setFilter('Songs'); }} /> : <>
-      {submitted && <ScrollView horizontal keyboardShouldPersistTaps="always" showsHorizontalScrollIndicator={false} style={S.tabs} contentContainerStyle={{ minWidth: '100%' }}>{filters.map(item => <Pressable key={item} accessibilityRole="tab" accessibilityLabel={`Search ${item}`} accessibilityState={{ selected: filter === item }} aria-selected={filter === item} onPress={() => chooseFilter(item)} style={[S.tab, filter === item && S.selectedTab]}><Label style={[S.tabText, { color: filter === item ? C.ink : C.muted }]}>{item}</Label></Pressable>)}</ScrollView>}
+      {submitted && <ScrollView horizontal accessibilityRole="tablist" accessibilityLabel="Search categories" keyboardShouldPersistTaps="always" showsHorizontalScrollIndicator={false} style={S.tabs} contentContainerStyle={{ minWidth: '100%' }}>{filters.map(item => <Pressable key={item} ref={node => { if (node) filterNodes.current.set(item, node); else filterNodes.current.delete(item); }} accessibilityRole="tab" accessibilityLabel={`Search ${item}`} accessibilityState={{ selected: filter === item }} aria-selected={filter === item} {...(Platform.OS === 'web' ? { tabIndex: filter === item ? 0 : -1, onKeyDown: (event: React.KeyboardEvent) => {
+        if (event.isDefaultPrevented() || event.nativeEvent.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+        const index = filters.indexOf(item);
+        const next = event.key === 'ArrowRight' ? (index + 1) % filters.length : event.key === 'ArrowLeft' ? (index + filters.length - 1) % filters.length : event.key === 'Home' ? 0 : event.key === 'End' ? filters.length - 1 : -1;
+        if (next < 0) return;
+        event.preventDefault(); chooseFilter(filters[next]);
+        const target = filterNodes.current.get(filters[next]) as unknown as HTMLElement | undefined;
+        target?.focus();
+        const tabs = target?.closest('[role="tablist"]') as HTMLElement | null;
+        if (target && tabs) {
+          const itemBox = target.getBoundingClientRect();
+          const tabsBox = tabs.getBoundingClientRect();
+          if (itemBox.left < tabsBox.left) tabs.scrollLeft += itemBox.left - tabsBox.left;
+          else if (itemBox.right > tabsBox.right) tabs.scrollLeft += itemBox.right - tabsBox.right;
+        }
+      } } : {})} onPress={() => chooseFilter(item)} style={[S.tab, filter === item && S.selectedTab]}><Label style={[S.tabText, { color: filter === item ? C.ink : C.muted }]}>{item}</Label></Pressable>)}</ScrollView>}
       {!library.ready ? <View style={S.empty}><ActivityIndicator accessibilityLabel="Loading local search" color={C.primary} /></View> : !search && !submitted ? <SearchRecent history={history} library={library} onCreator={openCreator} onSong={track => { play(track, library.tracks); onOpenPlayer(); }} onPlaylist={openPlaylist} /> : <ScrollView key={scrollKey} ref={scroll} onContentSizeChange={() => scroll.current?.scrollTo({ y: scrollOffsets.current[scrollKey] || 0, animated: false })} onScroll={event => { scrollOffsets.current[scrollKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={[S.results, showHooks && { paddingTop: 0 }]}>
         {submitted && filter === 'All' && artist && creator(true)}
         {showSongs && !!tracks.length && <>{submitted && filter === 'All' && header('Songs', 'Songs')}{songRows(submitted && filter === 'All' ? tracks.slice(0, 3) : tracks)}</>}

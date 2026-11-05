@@ -34,7 +34,10 @@ export function useLibrary() {
     apply(readLibrary(raw)); setError('');
   });
   const edit = (update: (current: LibraryData) => LibraryData) => {
-    void commit(update).catch(() => setError('Library changes could not be saved on this device. Try again.'));
+    return commit(update).then(() => true, () => {
+      setError('Library changes could not be saved on this device. Try again.');
+      return false;
+    });
   };
   const cleanupMedia = async () => {
     const raw = await AsyncStorage.getItem(KEY);
@@ -65,15 +68,18 @@ export function useLibrary() {
     if (Platform.OS === 'web') window.addEventListener('storage', changed);
     return () => { active = false; listener.remove(); if (Platform.OS === 'web') window.removeEventListener('storage', changed); };
   }, []);
-  const create = useCallback((name: string, isPublic: boolean) => {
-    if (!ready || !name.trim()) return null;
-    const item: Playlist = { id: `playlist-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, name: name.trim(), isPublic, songIds: [], createdAt: Date.now() };
-    edit(current => ({ ...current, playlists: [item, ...current.playlists] }));
-    return item.id;
-  }, [ready]);
-  const update = useCallback((id: string, patch: Pick<Playlist, 'name' | 'isPublic' | 'description' | 'coverUri'>) => {
-    if (!ready || !patch.name.trim()) return;
-    edit(current => ({ ...current, playlists: current.playlists.map(item => item.id === id ? { ...item, ...patch, name: patch.name.trim() } : item) }));
+  const update = useCallback(async (id: string, patch: Partial<Pick<Playlist, 'name' | 'isPublic' | 'description' | 'coverUri'>>) => {
+    if (!ready || (patch.name !== undefined && !patch.name.trim())) return false;
+    const details = {
+      ...(patch.name === undefined ? {} : { name: patch.name.trim() }),
+      ...(patch.isPublic === undefined ? {} : { isPublic: patch.isPublic }),
+      ...('description' in patch ? { description: patch.description } : {}),
+      ...('coverUri' in patch ? { coverUri: patch.coverUri } : {}),
+    };
+    return edit(current => {
+      if (!current.playlists.some(item => item.id === id)) throw new Error('Playlist no longer exists.');
+      return { ...current, playlists: current.playlists.map(item => item.id === id ? { ...item, ...details } : item) };
+    });
   }, [ready]);
   const remove = useCallback(async (id: string) => {
     if (!ready) return false;
@@ -81,24 +87,33 @@ export function useLibrary() {
       await removeOfflinePlaylist(id);
       await commit(current => ({ ...current, playlists: current.playlists.filter(item => item.id !== id) }));
       return true;
-    } catch { setError('The playlist could not be deleted because its offline files could not be removed. Try again.'); return false; }
+    } catch { setError('The playlist could not be deleted. Try again.'); return false; }
   }, [ready]);
   const retainReceived = useCallback((current: LibraryData, songId: string): LibraryData => {
     if (current.songs?.some(song => song.id === songId) || current.receivedSongs?.some(song => song.id === songId)) return current;
     const song = shared?.songs?.find(song => song.id === songId);
     return song ? { ...current, receivedSongs: [...(current.receivedSongs || []), song] } : current;
   }, [shared]);
-  const addSong = useCallback((playlistId: string, songId: string) => {
-    if (!ready) return;
-    edit(current => current.playlists.some(item => item.id === playlistId) ? ({ ...retainReceived(current, songId), playlists: current.playlists.map(item => item.id === playlistId && !item.songIds.includes(songId) ? { ...item, songIds: [...item.songIds, songId] } : item) }) : current);
+  const create = useCallback(async (name: string, isPublic: boolean, songId?: string) => {
+    if (!ready || !name.trim()) return null;
+    const item: Playlist = { id: `playlist-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, name: name.trim(), isPublic, songIds: songId ? [songId] : [], createdAt: Date.now() };
+    const saved = await edit(current => ({ ...(songId ? retainReceived(current, songId) : current), playlists: [item, ...current.playlists] }));
+    return saved ? item.id : null;
   }, [ready, retainReceived]);
-  const removeSong = useCallback((playlistId: string, songId: string) => {
-    if (!ready) return;
-    edit(current => ({ ...current, playlists: current.playlists.map(item => item.id === playlistId ? { ...item, songIds: item.songIds.filter(id => id !== songId) } : item) }));
+  const addSong = useCallback(async (playlistId: string, songId: string) => {
+    if (!ready) return false;
+    return edit(current => {
+      if (!current.playlists.some(item => item.id === playlistId)) throw new Error('Playlist no longer exists.');
+      return { ...retainReceived(current, songId), playlists: current.playlists.map(item => item.id === playlistId && !item.songIds.includes(songId) ? { ...item, songIds: [...item.songIds, songId] } : item) };
+    });
+  }, [ready, retainReceived]);
+  const removeSong = useCallback(async (playlistId: string, songId: string) => {
+    if (!ready) return false;
+    return edit(current => ({ ...current, playlists: current.playlists.map(item => item.id === playlistId ? { ...item, songIds: item.songIds.filter(id => id !== songId) } : item) }));
   }, [ready]);
-  const toggleLike = useCallback((songId: string) => {
-    if (!ready) return;
-    edit(current => ({ ...retainReceived(current, songId), likedIds: current.likedIds?.includes(songId) ? current.likedIds.filter(id => id !== songId) : [...(current.likedIds || []), songId] }));
+  const toggleLike = useCallback(async (songId: string) => {
+    if (!ready) return false;
+    return edit(current => ({ ...retainReceived(current, songId), likedIds: current.likedIds?.includes(songId) ? current.likedIds.filter(id => id !== songId) : [...(current.likedIds || []), songId] }));
   }, [ready, retainReceived]);
   const toggleDislike = useCallback((songId: string) => {
     if (!ready) return;

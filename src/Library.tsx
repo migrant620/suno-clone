@@ -2,7 +2,7 @@ import { ThemeColors, LightSurface, ThemedSurface, useSurfaceColors } from './Th
 import { LibrarySearch as Search } from './LibrarySearch';
 import { SongRow } from './SongRow';
 import { sampleTrack } from './sampleSongs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Image, Keyboard, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { C, Icon, IconButton, Label, S } from './ui';
 import { AudioConfirm, SongPicker } from './Audio';
@@ -35,6 +35,20 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
   const [songActions, setSongActions] = useState<AudioTrack | null>(null);
   const [reportingSong, setReportingSong] = useState<AudioTrack | null>(null);
   const [sharingSong, setSharingSong] = useState<AudioTrack | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionFailed, setActionFailed] = useState(false);
+  const actionPending = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const performAction = async (action: () => Promise<boolean>, done: () => void) => {
+    if (actionPending.current) return;
+    actionPending.current = true; setActionBusy(true); setActionFailed(false);
+    let saved = false;
+    try { saved = await action(); }
+    catch { saved = false; }
+    finally { actionPending.current = false; if (mounted.current) setActionBusy(false); }
+    if (mounted.current) { if (saved) done(); else setActionFailed(true); }
+  };
   const item = route === 'shared' ? library.shared || undefined : route.startsWith('playlist:') ? library.data.playlists.find(p => p.id === route.slice(9)) : undefined;
   const detailItem = item || { id: 'liked', name: 'Liked Songs', songIds: library.data.likedIds || [], isPublic: false, createdAt: 0 };
   const tracks = detailItem.songIds.map(id => [...(item?.songs || []).map(sampleTrack), ...library.tracks].find(track => track.id === id)).filter((track): track is AudioTrack => !!track).map(track => ({ ...track, likes: library.data.likedIds?.includes(track.id) ? 1 : 0 }));
@@ -60,7 +74,7 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
     ...library.data.playlists,
   ].filter(p => p.name.toLowerCase().includes(query.trim().toLowerCase()));
   const ownFilter = filter === 'All' || filter === 'My Playlists';
-  if (editing && item) return <PlaylistEditor item={item} onClose={() => setEditing(false)} onSave={changed => { library.update(item.id, changed); setEditing(false); }} />;
+  if (editing && item) return <PlaylistEditor item={item} saveError={library.error} onClose={() => setEditing(false)} onSave={changed => library.update(item.id, changed)} />;
   return <View style={L.page}>
     {route === 'search' ? <Search library={library} player={player} onSongOptions={setSongActions} onBack={back} /> : searching ? <>
       <View style={L.searchHeader}>{searchInput}{<IconButton name="close" label="Close" onPress={() => { Keyboard.dismiss(); setSearching(false); setQuery(''); }} circle={C.field} />}</View>
@@ -83,18 +97,18 @@ function LibraryContent({ route, onRoute, onCreate, onReuse, library, player, on
       <View style={L.tip}><Label style={L.tipText}>Create your first hit from</Label><View style={[S.row, { justifyContent: 'center' }]}><Label style={L.tipText}>the </Label><Icon name="music-note-plus" size={18} color={C.muted} /><Label style={L.tipText}> button below</Label></View><Icon name="arrow-down-bold" size={40} color="#AA5290" /></View></>}
     </>}
     {!!library.error && <Label style={{ padding: 12, color: '#B52B19' }}>{library.error}</Label>}
-    {creating && <PlaylistForm onClose={() => setCreating(false)} onSave={(name, isPublic) => { library.create(name, isPublic); setCreating(false); }} />}
-    {menu && item && <View style={StyleSheet.absoluteFill}><Pressable accessibilityRole="button" accessibilityLabel="Close playlist actions" onPress={() => setMenu(false)} style={StyleSheet.absoluteFill} /><View style={L.menu}>
-      <Pressable accessibilityRole="button" onPress={() => { setMenu(false); setEditing(true); }} style={L.menuRow}><Icon name="pencil" /><Label style={L.menuText}>Edit Playlist Details</Label></Pressable>
-      <Pressable accessibilityRole="button" onPress={() => { setMenu(false); setAdding(true); }} style={L.menuRow}><Icon name="plus" /><Label style={L.menuText}>Add Songs</Label></Pressable>
-      <Pressable accessibilityRole="button" onPress={() => { library.update(item.id, { ...item, isPublic: !item.isPublic }); setMenu(false); }} style={L.menuRow}><Icon name={item.isPublic ? 'lock' : 'earth'} /><Label style={L.menuText}>{item.isPublic ? 'Make Private' : 'Make Public'}</Label></Pressable>
-      <Pressable accessibilityRole="button" onPress={() => { setMenu(false); setRemoving(true); }} style={L.menuRow}><Icon name="delete" color="#BF300B" /><Label style={[L.menuText, { color: '#BF300B' }]}>Delete Playlist</Label></Pressable>
+    {creating && <PlaylistForm error={library.error} onClose={() => setCreating(false)} onSave={async (name, isPublic) => (await library.create(name, isPublic)) !== null} />}
+    {menu && item && <View style={StyleSheet.absoluteFill}><Pressable accessibilityRole="button" accessibilityLabel="Close playlist actions" disabled={actionBusy} onPress={() => setMenu(false)} style={StyleSheet.absoluteFill} /><View style={L.menu}>
+      <Pressable accessibilityRole="button" disabled={actionBusy} onPress={() => { setMenu(false); setEditing(true); }} style={L.menuRow}><Icon name="pencil" /><Label style={L.menuText}>Edit Playlist Details</Label></Pressable>
+      <Pressable accessibilityRole="button" disabled={actionBusy} onPress={() => { setMenu(false); setAdding(true); }} style={L.menuRow}><Icon name="plus" /><Label style={L.menuText}>Add Songs</Label></Pressable>
+      <Pressable accessibilityRole="button" disabled={actionBusy} accessibilityState={{ disabled: actionBusy, busy: actionBusy }} onPress={() => void performAction(() => library.update(item.id, { isPublic: !item.isPublic }), () => setMenu(false))} style={L.menuRow}><Icon name={item.isPublic ? 'lock' : 'earth'} /><Label style={L.menuText}>{item.isPublic ? 'Make Private' : 'Make Public'}</Label></Pressable>
+      <Pressable accessibilityRole="button" disabled={actionBusy} onPress={() => { setMenu(false); setActionFailed(false); setRemoving(true); }} style={L.menuRow}><Icon name="delete" color="#BF300B" /><Label style={[L.menuText, { color: '#BF300B' }]}>Delete Playlist</Label></Pressable>
     </View></View>}
-    {removing && item && <AudioConfirm destructive title="Delete playlist?" description="You will not be able to get your playlist back once you press 'Delete'." confirm="Delete" cancel="Cancel" onCancel={() => setRemoving(false)} onConfirm={() => { setRemoving(false); void library.remove(item.id).then(removed => { if (removed) onRoute('playlists'); }); }} />}
+    {removing && item && <AudioConfirm destructive title="Delete playlist?" description={actionFailed ? library.error || 'The playlist could not be deleted. Try again.' : "You will not be able to get your playlist back once you press 'Delete'."} confirm={actionBusy ? 'Deleting…' : 'Delete'} busy={actionBusy} cancel="Cancel" onCancel={() => { if (!actionPending.current) setRemoving(false); }} onConfirm={() => void performAction(() => library.remove(item.id), () => { setRemoving(false); onRoute('playlists'); })} />}
     {songActions && <SongActions track={songActions} liked={!!library.data.likedIds?.includes(songActions.id)} disliked={!!library.data.dislikedIds?.includes(songActions.id)} canRemove={!!item && route !== 'shared'} onClose={() => setSongActions(null)} onRemove={() => { if (item) library.removeSong(item.id, songActions.id); setSongActions(null); }} onLike={() => library.toggleLike(songActions.id)} onDislike={() => library.toggleDislike(songActions.id)} onShare={() => { setSharingSong(songActions); setSongActions(null); }} onReuse={audio => { const song = songActions; setSongActions(null); onReuse(song, audio); }} onRadio={() => { void player.start(songActions, [songActions, ...exampleTracks.filter(track => track.id !== songActions.id)], detailItem.id); setSongActions(null); }} onReport={() => { const song = songActions; setSongActions(null); setReportingSong(song); }} />}
     {reportingSong && <SongReport track={reportingSong} onClose={() => setReportingSong(null)} onSaved={() => setReportingSong(null)} />}
     {sharingSong && <LightSurface><PlaylistShare tracks={[sharingSong]} playlist={{ id: 'shared-song', name: sharingSong.title, description: 'Local example music', songIds: [sharingSong.id], isPublic: false, createdAt: 0 }} onClose={() => setSharingSong(null)} /></LightSurface>}
-    {adding && item && <SongPicker songs={library.songs} likedSongs={library.tracks.filter(track => library.data.likedIds?.includes(track.id))} onClose={() => setAdding(false)} playlist={{ onAdd: song => library.addSong(item.id, song.id), onRemove: song => library.removeSong(item.id, song.id) }} />}
+    {adding && item && <SongPicker songs={library.songs} likedSongs={library.tracks.filter(track => library.data.likedIds?.includes(track.id))} onClose={() => setAdding(false)} playlist={{ songIds: item.songIds, error: library.error, onAdd: song => library.addSong(item.id, song.id), onRemove: song => library.removeSong(item.id, song.id) }} />}
   </View>;
 }
 const styles = (C: ThemeColors) => StyleSheet.create({

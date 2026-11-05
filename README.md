@@ -54,7 +54,9 @@ The full token set — colours, dark theme, type scale, spacing and component no
 
 ### In the details
 
-A closer look at the current edition: editable drafts, persistent playlists, and bundled typography across the interface.
+Playlist forms keep your entered details when a local save fails and let you retry. Creating a playlist from the player adds the current song in the same save. Song selection reflects saved playlist membership.
+
+Use Ctrl+Enter or Cmd+Enter to create a playlist, and Arrow keys, Home, or End to move between search categories.
 
 ### A first walkthrough
 
@@ -87,7 +89,7 @@ The static output is written to `dist/`. Serve that directory over HTTP or HTTPS
 
 ## Demo build
 
-The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-10-23 (GitHub Pages commit `c98c6b4e`).
+The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-11-05 (GitHub Pages commit `0def2059`).
 
 ## Scope and limitations
 
@@ -111,4 +113,4 @@ Product names and trademarks belong to their owners; the license covers this pro
 
 This is an independent prototype by M620, not an official Suno product and not affiliated with or endorsed by Suno. Third-party names identify the interface being demonstrated.
 
-Third-party components retain their own licenses. See the [third-party notices](public/third-party-notices.txt); the Web build also serves this file at `/third-party-notices.txt`.
+Third-party components retain their own licenses. See the [third-party notices](public/third-party-notices.txt). The published demo also serves [these notices](https://migrant620.github.io/suno/third-party-notices.txt).
