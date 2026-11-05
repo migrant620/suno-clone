@@ -3,6 +3,8 @@ import { AudioTrack } from './audioData';
 export const playlistSorts = ['Default', 'Date Added', 'Most Liked', 'Most Played', 'Alphabetical'] as const;
 export type PlaylistSort = typeof playlistSorts[number];
 export type SortDirection = 'Ascending' | 'Descending';
+export type PlaylistViewState = { sort: PlaylistSort; direction: SortDirection; query: string; searching: boolean };
+export const defaultPlaylistView = (): PlaylistViewState => ({ sort: 'Default', direction: 'Descending', query: '', searching: false });
 
 export function sortedPlaylistTracks(tracks: AudioTrack[], sort: PlaylistSort, direction: SortDirection): AudioTrack[] {
   if (sort === 'Default') return tracks;

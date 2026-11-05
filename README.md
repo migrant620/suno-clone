@@ -54,9 +54,13 @@ The full token set — colours, dark theme, type scale, spacing and component no
 
 ### In the details
 
-Playlist forms keep your entered details when a local save fails and let you retry. Creating a playlist from the player adds the current song in the same save. Song selection reflects saved playlist membership.
+Playlist forms keep your entered details when a local save fails and let you retry. Creating a playlist from the player adds the current song in the same save. Song selection reflects saved playlist membership. Removing a song from a playlist waits for local storage to confirm the change; a failed save keeps the action available for retry.
 
-Use Ctrl+Enter or Cmd+Enter to create a playlist, and Arrow keys, Home, or End to move between search categories.
+Use Ctrl+Enter or Cmd+Enter to create a playlist, and Arrow keys, Home, or End to move between search categories. The Library playlist filters, song-picker sources and song-picker filters also support Arrow keys, Home and End. Song selection can search the sample artist as well as titles and styles.
+
+Library song searches survive switching main tabs. Within Library playlists, each playlist keeps its sort order and song-search context while you navigate around the current page. Opening a playlist-search result and returning keeps the original query; deleting that result returns to the same search. These view choices reset when you reload.
+
+Changing the playing song resets its temporary panels and expanded style text. The shared play queue, shuffle and repeat settings continue.
 
 ### A first walkthrough
 
@@ -89,7 +93,7 @@ The static output is written to `dist/`. Serve that directory over HTTP or HTTPS
 
 ## Demo build
 
-The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-11-05 (GitHub Pages commit `0def2059`).
+The published demo at <https://migrant620.github.io/suno/> is built from this repository. It was last rebuilt and redeployed on 2026-11-05 (GitHub Pages commit `94b1e0d7`).
 
 ## Scope and limitations
 

@@ -4,18 +4,20 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { AudioTrack } from './audioData';
 import { C, Icon, IconName, Label, Sheet } from './ui';
 
-export function SongActions({ track, liked, disliked, canRemove, onClose, onRemove, onLike, onDislike, onShare, onReuse, onRadio, onReport }: {
+export function SongActions({ track, liked, disliked, canRemove, onClose, onRemove, onLike, onDislike, onShare, onReuse, onRadio, onReport, busy = false, error = '' }: {
+  busy?: boolean; error?: string;
   track: AudioTrack; liked: boolean; disliked: boolean; canRemove: boolean; onClose: () => void; onRemove: () => void; onLike: () => void; onDislike: () => void;
   onShare: () => void; onReuse: (audio: boolean) => void; onRadio: () => void; onReport: () => void;
 }) {
-  const tile = (title: string, icon: IconName, onPress: () => void) => { const active = (liked && title === 'Unlike') || (disliked && title === 'Undislike'); return <Pressable accessibilityRole="button" key={title} onPress={onPress} style={A.tile}><Icon name={icon} size={24} color={active ? C.primary : C.ink} /><Label style={A.tileText}>{title}</Label></Pressable>; };
+  const tile = (title: string, icon: IconName, onPress: () => void) => { const active = (liked && title === 'Unlike') || (disliked && title === 'Undislike'); return <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} key={title} onPress={onPress} style={A.tile}><Icon name={icon} size={24} color={active ? C.primary : C.ink} /><Label style={A.tileText}>{title}</Label></Pressable>; };
   const C = useSurfaceColors(); const A = styles(C);
-  return <Sheet compact onClose={onClose}>
+  return <Sheet compact onClose={() => { if (!busy) onClose(); }}>
     <View style={A.summary}>{track.cover && <Image source={track.cover} style={A.cover} />}<View style={{ flex: 1 }}><Label style={{ fontSize: 16 }}>{track.title}</Label><Label style={{ color: C.muted }}>by {track.artist || 'Demo listener'}</Label></View></View>
     <View style={A.tiles}>{canRemove && tile('Remove from Playlist', 'minus', onRemove)}{tile(liked ? 'Unlike' : 'Like', 'thumb-up', onLike)}{tile(disliked ? 'Undislike' : 'Dislike', 'thumb-down', onDislike)}{tile('Share Song', 'share-variant-outline', onShare)}</View>
-    <View style={A.group}><Pressable accessibilityRole="button" onPress={() => onReuse(true)} style={A.row}><Icon name="autorenew" /><Label>Remix</Label></Pressable><Pressable accessibilityRole="button" onPress={() => onReuse(false)} style={A.row}><Icon name="text-box-plus-outline" /><Label>Reuse Styles and Lyrics</Label></Pressable></View>
-    <View style={A.group}><Pressable accessibilityRole="button" onPress={onRadio} style={A.row}><Icon name="radio-tower" /><Label>Start Song Radio</Label></Pressable></View>
-    <View style={A.group}><Pressable accessibilityRole="button" onPress={onReport} style={A.row}><Icon name="flag" color="#FD429C" /><Label style={{ color: '#FD429C' }}>Report</Label></Pressable></View>
+    <View style={A.group}><Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={() => onReuse(true)} style={A.row}><Icon name="autorenew" /><Label>Remix</Label></Pressable><Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={() => onReuse(false)} style={A.row}><Icon name="text-box-plus-outline" /><Label>Reuse Styles and Lyrics</Label></Pressable></View>
+    <View style={A.group}><Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={onRadio} style={A.row}><Icon name="radio-tower" /><Label>Start Song Radio</Label></Pressable></View>
+    <View style={A.group}><Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={onReport} style={A.row}><Icon name="flag" color="#FD429C" /><Label style={{ color: '#FD429C' }}>Report</Label></Pressable></View>
+    {!!error && <Label accessibilityRole="alert" accessibilityLiveRegion="polite" style={[A.disclosure, { color: C.primary }]}>{error}</Label>}
     <Label style={A.disclosure}>Local example music · No Suno service connection</Label>
   </Sheet>;
 }

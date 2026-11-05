@@ -13,7 +13,7 @@ export function LibrarySearch({ library, player, onSongOptions, onBack }: {
   onSongOptions: (song: AudioTrack) => void; onBack: () => void;
 }) {
   const C = useSurfaceColors(); const S = styles(C); const input = useRef<TextInput>(null);
-  const [query, setQuery] = useState('');
+  const { librarySearchQuery: query, setLibrarySearchQuery: setQuery } = library;
   const search = query.trim().toLowerCase();
   const tracks = search ? library.tracks.filter(track =>
     (library.songs.some(song => song.id === track.id) || library.data.likedIds?.includes(track.id) || library.data.playlists.some(item => item.songIds.includes(track.id))) &&

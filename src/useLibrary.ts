@@ -1,4 +1,5 @@
 import { AudioTrack, exampleTracks } from './audioData';
+import { defaultPlaylistView, PlaylistViewState } from './playlistView';
 import { SampleSong, sampleTrack } from './sampleSongs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { removeOfflinePlaylist } from './offlineStore';
@@ -22,6 +23,10 @@ export function useLibrary() {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [likedOrigin, setLikedOrigin] = useState<'home' | 'playlists' | 'search'>('home');
+  const [librarySearchQuery, setLibrarySearchQuery] = useState('');
+  const [playlistSearchOrigin, setPlaylistSearchOrigin] = useState<{ id: string; query: string } | null>(null);
+  const [detailViews, setDetailViews] = useState<Record<string, PlaylistViewState>>({});
+  const setDetailView = (id: string, patch: Partial<PlaylistViewState>) => setDetailViews(current => ({ ...current, [id]: { ...defaultPlaylistView(), ...current[id], ...patch } }));
   const writes = useRef<Promise<unknown>>(Promise.resolve());
   const apply = (next: LibraryData) => { dataRef.current = next; setData(next); };
   const queue = <T,>(operation: () => Promise<T>) => {
@@ -187,5 +192,5 @@ export function useLibrary() {
       return true;
     } catch { setError('The collection could not be saved. Try again.'); return false; }
   };
-  return { data, ready, error, songs, tracks, createSample, deleteSong, retryCleanup, create, update, remove, addSong, removeSong, toggleLike, toggleDislike, saveCollection, shared, setShared, view, setView, filter, setFilter, query, setQuery, searching, setSearching, likedOrigin, setLikedOrigin };
+  return { librarySearchQuery, setLibrarySearchQuery, playlistSearchOrigin, setPlaylistSearchOrigin, detailViews, setDetailView, data, ready, error, songs, tracks, createSample, deleteSong, retryCleanup, create, update, remove, addSong, removeSong, toggleLike, toggleDislike, saveCollection, shared, setShared, view, setView, filter, setFilter, query, setQuery, searching, setSearching, likedOrigin, setLikedOrigin };
 }

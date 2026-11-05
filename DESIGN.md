@@ -96,9 +96,24 @@ Pill buttons, rounded sheets (28 dp) and softly rounded cards (24 dp) are charac
 
 **Plans.** Monthly and annual billing with Pro / Premier cards and download packs. Checkout is a clearly labelled demo: no payment is taken and no service credit is issued.
 
-## Do's and Don'ts
+## Prototype behavior
 
-Use real text, inputs, controls and local data. Never embed screenshots of another product as interface elements. Label sample generation and demo checkout clearly, and never imply access to Suno's service. Keep one accent per screen.
+The interface uses text, editable inputs, controls and local data. Example music and checkout are
+labelled as demonstrations; no Suno service is connected.
+
+Library song searches retain their query across main-tab navigation. Each Library playlist retains
+its own sort/direction and song-search view while the page stays open. Playlist-name search returns
+to the same query after opening a result or deleting it. These view choices reset on reload; this
+behavior is limited to Library playlists.
+
+Removing a song from a playlist waits for local storage acknowledgement. Failed saves retain the
+action for retry; opening another song's menu clears the previous action error. Song selection
+matches the existing sample artist metadata as well as song titles and styles.
+
+Arrow keys, Home and End move focus and selection through Library playlist filters, song-picker
+sources and song-picker filters. Each group has one tab stop. Changing the playing song closes its
+temporary panels and collapses expanded style text, while the shared queue, shuffle and repeat
+settings continue.
 
 ## Responsive Behavior
 

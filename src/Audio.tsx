@@ -31,6 +31,10 @@ type SongPickerProps = { onClose: () => void; songs?: AudioTrack[]; likedSongs?:
 );
 export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs = [], publicSongs = [] }: SongPickerProps) {
   const C = useSurfaceColors(); const T = styles(C);
+  const tabNodes = React.useRef(new Map<string, View>());
+  const filterNodes = React.useRef(new Map<string, View>());
+  const tabs = ['My Songs', 'For you', 'Staff Picks'];
+  const filters = ['All', 'Liked', 'Public'];
   const [tab, setTab] = useState('My Songs');
   const [filter, setFilter] = useState('All');
   const [query, setQuery] = useState('');
@@ -64,13 +68,22 @@ export function SongPicker({ onClose, onSelect, playlist, songs = [], likedSongs
       setPreviewError('');
     } catch { setPreviewError('Unable to preview this audio. You can retry or select another song.'); }
   };
+  const moveChoice = (event: React.KeyboardEvent, name: string, values: string[], nodes: React.MutableRefObject<Map<string, View>>, choose: (name: string) => void) => {
+    if (event.isDefaultPrevented() || event.nativeEvent.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const index = values.indexOf(name);
+    const next = event.key === 'ArrowRight' ? (index + 1) % values.length : event.key === 'ArrowLeft' ? (index + values.length - 1) % values.length : event.key === 'Home' ? 0 : event.key === 'End' ? values.length - 1 : -1;
+    if (next < 0) return;
+    event.preventDefault(); choose(values[next]);
+    const target = nodes.current.get(values[next]) as unknown as HTMLElement | undefined;
+    target?.focus(); target?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
   const choices = tab === 'My Songs' ? (filter === 'All' ? songs : filter === 'Liked' ? likedSongs : publicSongs) : exampleTracks;
-  const matches = choices.filter(song => `${song.title} ${song.styles}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const matches = choices.filter(song => `${song.title} ${song.styles} ${song.artist || ''}`.toLowerCase().includes(query.trim().toLowerCase()));
   return <Sheet onClose={() => { if (!membershipPending.current) onClose(); }} backgroundColor={C.toolbar} handleHeight={48}>
     <Label style={T.pickerTitle}>{playlist ? (added.length ? `${added.length} ${added.length === 1 ? 'Song' : 'Songs'} Added` : 'Select Songs') : 'Select a song'}</Label>
     <View style={T.search}><View pointerEvents="none" style={T.searchIcon}><Icon name="magnify" color={C.surface === '#101012' ? C.muted : '#5B5B62'} size={24} /></View><TextInput accessibilityLabel="Search songs" placeholder="Search songs" placeholderTextColor={C.surface === '#101012' ? C.muted : '#5B5B62'} value={query} onChangeText={setQuery} style={T.searchInput} />{!!query && <IconButton name="close" label="Clear song search" onPress={() => setQuery('')} style={{ width: 32, height: 40 }} />}</View>
-    <View style={T.tabs}>{['My Songs', 'For you', 'Staff Picks'].map(name => <Pressable accessibilityRole="tab" accessibilityState={{ selected: tab === name }} aria-selected={tab === name} key={name} onPress={() => setTab(name)} style={[T.tab, tab === name && { borderBottomColor: C.ink }]}><Label style={{ fontSize: 14, lineHeight: 17, marginTop: 1.5 , color: tab === name ? C.ink : C.surface === '#101012' ? C.muted : '#7D7C83' }}>{name}</Label></Pressable>)}</View>
-    {tab === 'My Songs' && <View style={T.filters}>{['All', 'Liked', 'Public'].map(name => <Pressable key={name} accessibilityRole="button" accessibilityState={{ selected: filter === name }} aria-selected={filter === name} onPress={() => setFilter(name)} style={T.filterTarget}><View style={[T.filter, filter === name && { backgroundColor: C.ink }]}><Label style={{ fontSize: 12, lineHeight: 15, marginTop: 1, color: filter === name ? C.surface : C.ink }}>{name}</Label></View></Pressable>)}</View>}
+    <View accessibilityRole="tablist" accessibilityLabel="Song sources" style={T.tabs}>{tabs.map(name => <Pressable accessibilityRole="tab" ref={node => { if (node) tabNodes.current.set(name, node); else tabNodes.current.delete(name); }} {...(Platform.OS === 'web' ? { tabIndex: tab === name ? 0 : -1, onKeyDown: (event: React.KeyboardEvent) => moveChoice(event, name, tabs, tabNodes, setTab) } : {})} accessibilityState={{ selected: tab === name }} aria-selected={tab === name} key={name} onPress={() => setTab(name)} style={[T.tab, tab === name && { borderBottomColor: C.ink }]}><Label style={{ fontSize: 14, lineHeight: 17, marginTop: 1.5 , color: tab === name ? C.ink : C.surface === '#101012' ? C.muted : '#7D7C83' }}>{name}</Label></Pressable>)}</View>
+    {tab === 'My Songs' && <View style={T.filters}>{filters.map(name => <Pressable key={name} ref={node => { if (node) filterNodes.current.set(name, node); else filterNodes.current.delete(name); }} {...(Platform.OS === 'web' ? { tabIndex: filter === name ? 0 : -1, onKeyDown: (event: React.KeyboardEvent) => moveChoice(event, name, filters, filterNodes, setFilter) } : {})} accessibilityRole="button" accessibilityState={{ selected: filter === name }} aria-selected={filter === name} aria-pressed={filter === name} onPress={() => setFilter(name)} style={T.filterTarget}><View style={[T.filter, filter === name && { backgroundColor: C.ink }]}><Label style={{ fontSize: 12, lineHeight: 15, marginTop: 1, color: filter === name ? C.surface : C.ink }}>{name}</Label></View></Pressable>)}</View>}
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
       {matches.map(song => <View key={song.id} style={T.song}><Pressable accessibilityRole="button" accessibilityLabel={`Select ${song.title}`} onPress={() => previewSong(song, true)} accessibilityState={{ selected: selected?.id === song.id }} style={[T.song, { flex: 1 }]}>
         <View style={T.cover}>{song.cover ? <Image source={song.cover} style={{ width: 56, height: 56 }} /> : <Icon name="music-note" />}<Label style={T.duration}>{clockTime(song.duration || 0).replace(/^0/, '')}</Label></View>

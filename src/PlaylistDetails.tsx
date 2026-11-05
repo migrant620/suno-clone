@@ -6,7 +6,7 @@ import { AudioConfirm } from './Audio';
 import { AudioTrack } from './audioData';
 import { Playlist } from './libraryState';
 import { PlaylistShare } from './PlaylistShare';
-import { playlistSorts, PlaylistSort, SortDirection, sortedPlaylistTracks } from './playlistView';
+import { playlistSorts, PlaylistSort, SortDirection, sortedPlaylistTracks, PlaylistViewState, defaultPlaylistView } from './playlistView';
 import { SongRow } from './SongRow';
 import { useLibraryPlayback } from './useLibraryPlayback';
 import { usePlaylistDownload } from './usePlaylistDownload';
@@ -21,18 +21,22 @@ function playlistSummary(tracks: AudioTrack[]): string {
   return `${count} • ${hours ? `${hours} hr, ${minutes % 60} min` : `${minutes} min`}`;
 }
 
-export function PlaylistDetails({ ownerName = 'Demo listener', item, liked, shared = false, tracks, player, onBack, onCreate, onAdd, onMenu, onSongOptions, backLabel = 'Back', curated }: {
+export function PlaylistDetails({ ownerName = 'Demo listener', item, liked, shared = false, tracks, player, onBack, onCreate, onAdd, onMenu, onSongOptions, backLabel = 'Back', curated, viewState, onViewChange }: {
   ownerName?: string;
+  viewState?: PlaylistViewState; onViewChange?: (patch: Partial<PlaylistViewState>) => void;
   curated?: { saved: boolean; busy: boolean; error: string; onToggle: () => void };
   backLabel?: string; item: Playlist; liked: boolean; shared?: boolean; tracks: AudioTrack[]; player: ReturnType<typeof useLibraryPlayback>;
   onBack: () => void; onCreate: () => void; onAdd: () => void; onMenu: () => void; onSongOptions: (track: AudioTrack) => void;
 }) {
   const C = useSurfaceColors(); const D = styles(C);
-  const [searching, setSearching] = useState(false);
-  const [query, setQuery] = useState('');
+  const [localView, setLocalView] = useState<PlaylistViewState>(defaultPlaylistView);
+  const changeView = (patch: Partial<PlaylistViewState>) => { if (onViewChange) onViewChange(patch); else setLocalView(current => ({ ...current, ...patch })); };
+  const { searching, query, sort, direction } = viewState ?? localView;
+  const setSearching = (searching: boolean) => changeView({ searching });
+  const setQuery = (query: string) => changeView({ query });
+  const setSort = (sort: PlaylistSort) => changeView({ sort });
+  const setDirection = (direction: SortDirection) => changeView({ direction });
   const [sortOpen, setSortOpen] = useState(false);
-  const [sort, setSort] = useState<PlaylistSort>('Default');
-  const [direction, setDirection] = useState<SortDirection>('Descending');
   const [sharing, setSharing] = useState(false);
   const [removingDownload, setRemovingDownload] = useState(false);
   const download = usePlaylistDownload(item.id, tracks);
@@ -40,7 +44,7 @@ export function PlaylistDetails({ ownerName = 'Demo listener', item, liked, shar
   const sorted = sortedPlaylistTracks(tracks, sort, direction);
   const matches = sorted.filter(track => `${track.title} ${track.artist || ''}`.toLowerCase().includes(query.trim().toLowerCase()));
   const cover = item.coverUri ? { uri: item.coverUri } : liked ? require('../assets/liked-texture.png') : require('../assets/playlist-default.png');
-  const closeSearch = () => { Keyboard.dismiss(); setSearching(false); setQuery(''); };
+  const closeSearch = () => { Keyboard.dismiss(); changeView({ searching: false, query: '' }); };
   const root = useRef<View>(null);
   useEffect(() => {
     if (Platform.OS !== 'web' || !curated) return;
